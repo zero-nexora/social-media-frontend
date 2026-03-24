@@ -1,0 +1,187 @@
+import { Link } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Check, X, UserPlus } from "lucide-react";
+import { toast } from "sonner";
+import { friendshipsApi } from "../../services/api-services";
+import { UserAvatar } from "../shared/user-avatar";
+import { OnlineBadge } from "../shared/online-badge";
+import { Button } from "../ui/button";
+import { fromNow } from "../../lib/utils";
+import type { Friendship, User, FriendSuggestion } from "../../types";
+
+// ─── FriendRequestCard ────────────────────────────────────
+export const FriendRequestCard = ({
+  friendship,
+}: {
+  friendship: Friendship;
+}) => {
+  const queryClient = useQueryClient();
+  const sender = friendship.sender!;
+
+  const acceptMutation = useMutation({
+    mutationFn: () => friendshipsApi.accept(sender.id),
+    onSuccess: () => {
+      toast.success(`Đã chấp nhận lời mời của ${sender.username}`);
+      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: () => friendshipsApi.reject(sender.id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] }),
+  });
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
+      {/* Avatar + online badge */}
+      <div className="relative shrink-0">
+        <UserAvatar user={sender} size="lg" />
+        <OnlineBadge userId={sender.id} className="absolute bottom-0 right-0" />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <Link
+          to={`/profile/${sender.username}`}
+          className="font-semibold text-sm hover:underline"
+        >
+          {sender.username}
+        </Link>
+        {sender.friendsCount > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {sender.friendsCount} bạn chung
+          </p>
+        )}
+        <p className="text-xs text-muted-foreground">
+          {fromNow(friendship.updatedAt)}
+        </p>
+      </div>
+
+      <div className="flex gap-2 shrink-0">
+        <Button
+          size="sm"
+          onClick={() => acceptMutation.mutate()}
+          disabled={acceptMutation.isPending}
+        >
+          <Check size={14} className="mr-1" /> Xác nhận
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => rejectMutation.mutate()}
+          disabled={rejectMutation.isPending}
+        >
+          <X size={14} className="mr-1" /> Xoá
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ─── FriendSuggestionCard ─────────────────────────────────
+export const FriendSuggestionCard = ({
+  suggestion,
+  onDismiss,
+}: {
+  suggestion: FriendSuggestion;
+  onDismiss: (userId: string) => void;
+}) => {
+  const queryClient = useQueryClient();
+  const { user, mutualCount } = suggestion;
+
+  const sendMutation = useMutation({
+    mutationFn: () => friendshipsApi.sendRequest(user.id),
+    onSuccess: () => {
+      toast.info(`Đã gửi lời mời đến ${user.username}`);
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+    },
+  });
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/30 transition-colors">
+      <UserAvatar user={user} size="md" />
+
+      <div className="flex-1 min-w-0">
+        <Link
+          to={`/profile/${user.username}`}
+          className="font-semibold text-sm hover:underline"
+        >
+          {user.username}
+        </Link>
+        {mutualCount > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {mutualCount} bạn chung
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-1">
+        <Button
+          size="sm"
+          variant={sendMutation.isSuccess ? "secondary" : "default"}
+          disabled={sendMutation.isSuccess || sendMutation.isPending}
+          onClick={() => sendMutation.mutate()}
+          className="h-8 px-2.5 text-xs"
+        >
+          {sendMutation.isSuccess ? (
+            "Đã gửi"
+          ) : (
+            <>
+              <UserPlus size={13} className="mr-1" />
+              Thêm bạn
+            </>
+          )}
+        </Button>
+        <button
+          onClick={() => onDismiss(user.id)}
+          className="p-1.5 rounded-full hover:bg-muted text-muted-foreground"
+        >
+          <X size={13} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─── FriendCard ───────────────────────────────────────────
+export const FriendCard = ({
+  friend,
+  onUnfriend,
+}: {
+  friend: User;
+  onUnfriend?: (id: string) => void;
+}) => {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/30 transition-colors">
+      {/* Avatar + online dot */}
+      <div className="relative shrink-0">
+        <UserAvatar user={friend} size="md" />
+        <OnlineBadge userId={friend.id} className="absolute bottom-0 right-0" />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <Link
+          to={`/profile/${friend.username}`}
+          className="font-semibold text-sm hover:underline block truncate"
+        >
+          {friend.username}
+        </Link>
+        <p className="text-xs text-muted-foreground">
+          {friend.friendsCount} bạn bè
+        </p>
+      </div>
+
+      {onUnfriend && (
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-xs text-muted-foreground shrink-0"
+          onClick={() => onUnfriend(friend.id)}
+        >
+          Huỷ kết bạn
+        </Button>
+      )}
+    </div>
+  );
+};

@@ -12,20 +12,20 @@ import {
   cn,
 } from "../../lib/utils";
 import type { Post, ReactionType, PaginatedResponse } from "../../types";
-import { useAuth } from "../../hooks/use-auth";
 
 interface Props {
   post: Post;
+  userId?: string;
   inDetail?: boolean;
   onCommentClick?: () => void;
 }
 
 export const PostCardReactionBar = ({
   post,
+  userId,
   inDetail = false,
   onCommentClick,
 }: Props) => {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showPicker, setShowPicker] = useState(false);
@@ -63,7 +63,7 @@ export const PostCardReactionBar = ({
     );
 
     queryClient.setQueriesData<InfiniteData<PaginatedResponse<Post>>>(
-      { queryKey: ["user-posts", user!.id] },
+      { queryKey: ["user-posts", userId] },
       (old) => {
         if (!old) return old;
         return {

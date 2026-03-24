@@ -25,7 +25,6 @@ export default function FriendsPage() {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [friendSearch, setFriendSearch] = useState("");
 
-  // ─── Friend Requests ─────────────────────────────────
   const {
     data: requestData,
     fetchNextPage: fetchMoreRequests,
@@ -46,13 +45,11 @@ export default function FriendsPage() {
     isFetchingNextPage: fetchingRequests,
   });
 
-  // ─── Suggestions ─────────────────────────────────────
   const { data: suggestions = [] } = useQuery({
     queryKey: ["friend-suggestions"],
     queryFn: () => friendshipsApi.getSuggestions(10),
   });
 
-  // ─── All Friends ──────────────────────────────────────
   const {
     data: friendData,
     fetchNextPage: fetchMoreFriends,
@@ -84,8 +81,6 @@ export default function FriendsPage() {
     (s) => !dismissed.has(s.user.id),
   );
 
-  // ─── Online presence ──────────────────────────────────
-  // Check which friends are online (batch call via socket)
   const friendIds = friends.map((f) => f.id);
   usePresence(friendIds);
 
@@ -97,7 +92,6 @@ export default function FriendsPage() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      {/* ─── Friend Requests ─────────────────────────── */}
       <section>
         <h2 className="font-bold text-lg mb-3">
           Lời mời kết bạn{" "}
@@ -133,7 +127,6 @@ export default function FriendsPage() {
         </div>
       </section>
 
-      {/* ─── Suggestions ─────────────────────────────── */}
       {visibleSuggestions.length > 0 && (
         <section>
           <h2 className="font-bold text-lg mb-3">

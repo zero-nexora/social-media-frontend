@@ -11,7 +11,6 @@ import { PostCardSkeleton } from "../components/shared/skeleton-card";
 import { PostCard } from "../components/post";
 import { CommentSection } from "../components/comment";
 
-// ─── Socket payload types ──────────────────────────────────
 interface PostReactionPayload {
   postId: string;
   userId: string;
@@ -81,11 +80,10 @@ export default function PostDetailPage() {
   }, [socket, id]);
 
   const patchPost = (patch: Partial<Post>) => {
-    // Single post cache
     queryClient.setQueryData<Post>(["post", id], (old) =>
       old ? { ...old, ...patch } : old,
     );
-    // Feed cache (infinite)
+
     queryClient.setQueriesData<InfiniteData<PaginatedResponse<Post>>>(
       { queryKey: ["feed"] },
       (old) => {
@@ -99,7 +97,7 @@ export default function PostDetailPage() {
         };
       },
     );
-    // User posts cache
+
     queryClient.setQueriesData<InfiniteData<PaginatedResponse<Post>>>(
       { queryKey: ["user-posts"] },
       (old) => {
@@ -115,12 +113,11 @@ export default function PostDetailPage() {
     );
   };
 
-  // ─── All post-room socket events ───────────────────────
   useEffect(() => {
     if (!socket || !id) return;
 
     const onReaction = (p: PostReactionPayload) => {
-      if (p.userId === me?.id) return; // own action — optimistic update already applied
+      if (p.userId === me?.id) return;
       patchPost({ likesCount: p.likesCount });
     };
 
@@ -133,7 +130,6 @@ export default function PostDetailPage() {
     };
 
     const onDeleted = (_p: PostDeletedPayload) => {
-      // Remove from all feed caches
       queryClient.setQueriesData<InfiniteData<PaginatedResponse<Post>>>(
         { queryKey: ["feed"] },
         (old) => {
@@ -148,12 +144,10 @@ export default function PostDetailPage() {
         },
       );
       queryClient.removeQueries({ queryKey: ["post", id] });
-      // Navigate away — post is gone
       navigate("/feed", { replace: true });
     };
 
     const onNewComment = ({ comment }: NewCommentPayload) => {
-      // Append to comments infinite query
       queryClient.setQueriesData<InfiniteData<PaginatedResponse<Comment>>>(
         { queryKey: ["comments", id] },
         (old) => {
@@ -176,9 +170,7 @@ export default function PostDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["comments", id] });
     };
 
-    const onCommentUpdated = ({
-      parentId,
-    }: CommentUpdatedPayload) => {
+    const onCommentUpdated = ({ parentId }: CommentUpdatedPayload) => {
       if (parentId) {
         queryClient.invalidateQueries({ queryKey: ["replies", parentId] });
       } else {

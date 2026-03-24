@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, X, UserPlus } from "lucide-react";
-import { toast } from "sonner";
 import { friendshipsApi } from "../../services/api-services";
 import { UserAvatar } from "../shared/user-avatar";
 import { OnlineBadge } from "../shared/online-badge";
@@ -21,7 +20,6 @@ export const FriendRequestCard = ({
   const acceptMutation = useMutation({
     mutationFn: () => friendshipsApi.accept(sender.id),
     onSuccess: () => {
-      toast.success(`Đã chấp nhận lời mời của ${sender.username}`);
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
     },
@@ -93,7 +91,6 @@ export const FriendSuggestionCard = ({
   const sendMutation = useMutation({
     mutationFn: () => friendshipsApi.sendRequest(user.id),
     onSuccess: () => {
-      toast.info(`Đã gửi lời mời đến ${user.username}`);
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
     },
   });

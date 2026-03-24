@@ -177,7 +177,6 @@ export default function PostDetailPage() {
     };
 
     const onCommentUpdated = ({
-      commentId,
       parentId,
     }: CommentUpdatedPayload) => {
       if (parentId) {
@@ -188,7 +187,6 @@ export default function PostDetailPage() {
     };
 
     const onCommentDeleted = ({
-      commentId,
       parentId,
       decrementBy,
     }: CommentDeletedPayload) => {

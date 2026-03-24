@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { authApi } from "../../services/api-services";
 import { Button } from "../../components/ui/button";
 import { AuthLayout } from "../../components/layout/auth/auth-layout";

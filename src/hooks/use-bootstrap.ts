@@ -19,18 +19,15 @@ export const useBootstrap = () => {
         const refreshRes = await axios.post<RefreshResponse>(
           `${BASE_URL}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         const accessToken = refreshRes.data.accessToken;
 
-        const meRes = await axios.get<{ user: User }>(
-          `${BASE_URL}/users/me`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-            withCredentials: true,
-          }
-        );
+        const meRes = await axios.get<{ user: User }>(`${BASE_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          withCredentials: true,
+        });
 
         const user = meRes.data.user;
 
@@ -41,18 +38,25 @@ export const useBootstrap = () => {
           const [countRes, requestRes] = await Promise.all([
             axios.get<{ count: number }>(
               `${BASE_URL}/notifications/unread-count`,
-              { headers: { Authorization: `Bearer ${accessToken}` }, withCredentials: true }
+              {
+                headers: { Authorization: `Bearer ${accessToken}` },
+                withCredentials: true,
+              },
             ),
-            axios.get<{ data: unknown[]; hasMore: boolean; nextCursor: string | null }>(
-              `${BASE_URL}/friendships/requests?limit=1`,
-              { headers: { Authorization: `Bearer ${accessToken}` }, withCredentials: true }
-            ),
+            axios.get<{
+              data: unknown[];
+              hasMore: boolean;
+              nextCursor: string | null;
+            }>(`${BASE_URL}/friendships/requests?limit=1`, {
+              headers: { Authorization: `Bearer ${accessToken}` },
+              withCredentials: true,
+            }),
           ]);
 
           setUnreadCount(countRes.data.count);
 
           const requestCount = requestRes.data.hasMore
-            ? 99 // clamp at 99+ badge
+            ? 99
             : requestRes.data.data.length;
           setFriendRequestCount(requestCount);
         } catch {

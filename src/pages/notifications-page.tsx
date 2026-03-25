@@ -1,4 +1,8 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Bell } from "lucide-react";
 import { notificationsApi } from "../services/api-services";
 import { useNotificationStore } from "../stores/notification-store";
@@ -6,7 +10,12 @@ import { useInfiniteScroll } from "../hooks/use-infinite-scroll";
 import { NotificationItem } from "../components/notification/notification-item";
 import { NotificationSkeleton } from "../components/shared/skeleton-card";
 import { Button } from "../components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { useState } from "react";
 
 export default function NotificationsPage() {
@@ -21,13 +30,17 @@ export default function NotificationsPage() {
         notificationsApi.getAll(
           pageParam as string | undefined,
           20,
-          tab === "unread" ? true : undefined
+          tab === "unread" ? true : undefined,
         ),
       initialPageParam: undefined as string | undefined,
       getNextPageParam: (last) => last.nextCursor ?? undefined,
     });
 
-  const sentinelRef = useInfiniteScroll({ fetchNextPage, hasNextPage, isFetchingNextPage });
+  const sentinelRef = useInfiniteScroll({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  });
 
   const markAllMutation = useMutation({
     mutationFn: notificationsApi.markAllRead,
@@ -59,22 +72,35 @@ export default function NotificationsPage() {
 
       {/* Tabs */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "unread")}>
-        <TabsList className="w-full mb-4">
-          <TabsTrigger value="all" className="flex-1">Tất cả</TabsTrigger>
-          <TabsTrigger value="unread" className="flex-1">
+        <TabsList className="w-full rounded-none h-auto p-0 bg-transparent border-b mb-4">
+          <TabsTrigger
+            value="all"
+            className="flex-1 rounded-none py-3 text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+          >
+            Tất cả
+          </TabsTrigger>
+          <TabsTrigger
+            value="unread"
+            className="flex-1 rounded-none py-3 text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+          >
             Chưa đọc {unreadCount > 0 && `(${unreadCount})`}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value={tab}>
           <div className="bg-card border rounded-xl overflow-hidden divide-y">
-            {isLoading && Array.from({ length: 5 }).map((_, i) => <NotificationSkeleton key={i} />)}
+            {isLoading &&
+              Array.from({ length: 5 }).map((_, i) => (
+                <NotificationSkeleton key={i} />
+              ))}
 
             {!isLoading && notifications.length === 0 && (
               <div className="py-16 text-center space-y-3">
                 <Bell size={40} className="mx-auto text-muted-foreground/40" />
                 <p className="text-muted-foreground text-sm">
-                  {tab === "unread" ? "Không có thông báo chưa đọc" : "Chưa có thông báo nào"}
+                  {tab === "unread"
+                    ? "Không có thông báo chưa đọc"
+                    : "Chưa có thông báo nào"}
                 </p>
               </div>
             )}

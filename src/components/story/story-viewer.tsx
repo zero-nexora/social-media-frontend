@@ -94,7 +94,11 @@ export const StoryViewer = ({
       clearTimer();
       return;
     }
-    return clearTimer;
+    const t = setTimeout(() => startTimer(), 0);
+    return () => {
+      clearTimeout(t);
+      clearTimer();
+    };
   }, [open, groupIdx, storyIdx, startTimer]);
 
   useEffect(() => () => clearTimer(), []);
@@ -122,11 +126,11 @@ export const StoryViewer = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center"
+      className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-sm h-full max-h-[90vh] overflow-hidden rounded-xl bg-foreground/50"
+        className="relative w-full max-w-sm h-full max-h-[90vh] overflow-hidden rounded-xl bg-black"
         onClick={(e) => e.stopPropagation()}
       >
         <StoryProgress
@@ -138,16 +142,16 @@ export const StoryViewer = ({
         <div className="absolute top-6 left-0 right-0 z-10 flex items-center gap-2 px-3 py-2">
           <UserAvatar user={currentGroup.user} size="sm" />
           <div className="flex-1 min-w-0">
-            <p className="text-background text-sm font-medium leading-none">
+            <p className="text-white text-sm font-medium leading-none">
               {currentGroup.user.username}
             </p>
-            <p className="text-background/60 text-xs mt-0.5">
+            <p className="text-white/60 text-xs mt-0.5">
               {fromNow(currentStory.createdAt)}
             </p>
           </div>
           {isOwn && (
             <button
-              className="text-background p-1.5 hover:bg-background/20 rounded-full transition-colors"
+              className="text-white p-1.5 hover:bg-white/20 rounded-full transition-colors"
               onClick={() => deleteMutation.mutate()}
               disabled={deleteMutation.isPending}
               title="Xoá story"
@@ -183,8 +187,8 @@ export const StoryViewer = ({
         )}
 
         {currentStory.caption && (
-          <div className="absolute bottom-8 left-0 right-0 px-4 py-3 bg-linear-to-t from-foreground/70 to-transparent">
-            <p className="text-background text-sm text-center drop-shadow">
+          <div className="absolute bottom-8 left-0 right-0 px-4 py-3 bg-linear-to-t from-black/70 to-transparent">
+            <p className="text-white text-sm text-center drop-shadow">
               {currentStory.caption}
             </p>
           </div>

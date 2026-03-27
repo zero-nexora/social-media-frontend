@@ -161,13 +161,6 @@ VITE_CLOUDINARY_CLOUD_NAME=tên_cloud
 VITE_CLOUDINARY_UPLOAD_PRESET=unsigned_preset
 ```
 
-### Cài đặt Quill (trình soạn thảo)
-
-```bash
-npm install quill
-npm install -D @types/quill
-```
-
 ### Chạy server phát triển
 
 ```bash

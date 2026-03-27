@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { REACTION_EMOJI, REACTION_LABEL } from "../../lib/utils";
+import { cn, REACTION_EMOJI, REACTION_LABEL } from "../../lib/utils";
 import type { ReactionType } from "../../types";
 
 const REACTIONS: ReactionType[] = [
@@ -55,7 +55,3 @@ export const ReactionPicker = ({ onSelect }: Props) => {
     </div>
   );
 };
-
-function cn(...classes: (string | boolean | undefined | null)[]) {
-  return classes.filter(Boolean).join(" ");
-}

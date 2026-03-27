@@ -8,8 +8,8 @@ import { useSocketStore } from "../stores/socket-store";
 import { useAuthStore } from "../stores/auth-store";
 import { postsApi } from "../services/api-services";
 import { PostCardSkeleton } from "../components/shared/skeleton-card";
-import { PostCard } from "../components/post";
-import { CommentSection } from "../components/comment";
+import { PostCard } from "../components/post/post-card";
+import { CommentSection } from "../components/comment/comment-section";
 
 interface PostReactionPayload {
   postId: string;

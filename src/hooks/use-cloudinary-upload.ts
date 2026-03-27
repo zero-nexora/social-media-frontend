@@ -89,7 +89,6 @@ export const useCloudinaryUpload = (folder = "posts") => {
     [syncedSetItems],
   );
 
-  // ─── Add files ────────────────────────────────────────────────────
   const addFiles = useCallback(
     (incoming: File[]) => {
       const current = itemsRef.current;
@@ -133,21 +132,16 @@ export const useCloudinaryUpload = (folder = "posts") => {
     [syncedSetItems],
   );
 
-  // ─── Upload all idle files ────────────────────────────────────────
-  // Fix: collect URLs directly from Promise results, never from stale
-  // `items` closure. itemsRef.current gives the latest committed state.
   const uploadAll = useCallback(async (): Promise<string[]> => {
     const snapshot = itemsRef.current;
     const indices = snapshot
       .map((item, i) => (item.status === "idle" ? i : -1))
       .filter((i) => i >= 0);
 
-    // Nothing to upload — return urls already stored from previous uploads
     if (indices.length === 0) {
       return snapshot.filter((x) => x.url).map((x) => x.url!);
     }
 
-    // Upload all idle files in parallel, collecting results directly
     const results = await Promise.all(
       indices.map(async (idx) => {
         updateItem(idx, { status: "uploading", progress: 0 });
@@ -170,7 +164,6 @@ export const useCloudinaryUpload = (folder = "posts") => {
       }),
     );
 
-    // Merge: already-uploaded urls + newly uploaded urls (in original order)
     const urlByIndex = new Map<number, string>();
     indices.forEach((idx, pos) => urlByIndex.set(idx, results[pos]));
 

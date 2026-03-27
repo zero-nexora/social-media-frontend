@@ -161,13 +161,6 @@ VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
 VITE_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset
 ```
 
-### Install Quill (rich-text editor)
-
-```bash
-npm install quill
-npm install -D @types/quill
-```
-
 ### Run Development Server
 
 ```bash

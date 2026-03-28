@@ -28,9 +28,8 @@ import {
 } from "../components/ui/alert-dialog";
 import {
   getPasswordStrength,
-  PASSWORD_STRENGTH_COLOR,
-  PASSWORD_STRENGTH_LABEL,
 } from "../lib/utils";
+import { PasswordStrengthBar } from "../components/shared/password-strength-bar";
 
 // ─── Constants ────────────────────────────────────────
 const TABS = [
@@ -290,24 +289,25 @@ export default function SettingsPage() {
                   {...register("newPassword")}
                 />
                 {newPw && pwStrength && (
-                  <div className="space-y-0.5">
-                    <div className="h-1 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${PASSWORD_STRENGTH_COLOR[pwStrength]} transition-all`}
-                        style={{
-                          width:
-                            pwStrength === "weak"
-                              ? "33%"
-                              : pwStrength === "medium"
-                                ? "66%"
-                                : "100%",
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {PASSWORD_STRENGTH_LABEL[pwStrength]}
-                    </p>
-                  </div>
+                  <PasswordStrengthBar password={newPw} />
+                  // <div className="space-y-0.5">
+                  //   <div className="h-1 rounded-full bg-muted overflow-hidden">
+                  //     <div
+                  //       className={`h-full rounded-full ${PASSWORD_STRENGTH_COLOR[pwStrength]} transition-all`}
+                  //       style={{
+                  //         width:
+                  //           pwStrength === "weak"
+                  //             ? "33%"
+                  //             : pwStrength === "medium"
+                  //               ? "66%"
+                  //               : "100%",
+                  //       }}
+                  //     />
+                  //   </div>
+                  //   <p className="text-xs text-muted-foreground">
+                  //     {PASSWORD_STRENGTH_LABEL[pwStrength]}
+                  //   </p>
+                  // </div>
                 )}
                 {errors.newPassword && (
                   <p className="text-xs text-destructive">

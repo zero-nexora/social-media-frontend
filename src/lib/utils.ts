@@ -132,19 +132,21 @@ export const PASSWORD_STRENGTH_LABEL: Record<PasswordStrength, string> = {
 export const getProfileUrl = (username: string) => `/profile/${username}`;
 export const getPostUrl = (postId: string) => `/posts/${postId}`;
 
-/** Navigate target based on notification type */
-export const getNotifTarget = (
-  type: NotifType,
-  targetId: string | null,
-  fromUsername: string,
-): string => {
-  if (type === "POST_REACT" || type === "POST_COMMENT") {
-    return getPostUrl(targetId ?? "");
+/** Navigate target based on notification type + specific FK fields */
+export const getNotifTarget = (notif: {
+  type: NotifType;
+  postId: string | null;
+  commentId: string | null;
+  friendshipId: string | null;
+  fromUser: { username: string };
+}): string => {
+  if (notif.type === "POST_REACT" || notif.type === "POST_COMMENT") {
+    return getPostUrl(notif.postId ?? "");
   }
-  if (type === "COMMENT_REPLY") {
-    return getPostUrl(targetId ?? ""); // targetId = commentId, BE should provide postId
+  if (notif.type === "COMMENT_REPLY") {
+    return notif.postId ? getPostUrl(notif.postId) : "/notifications";
   }
-  return getProfileUrl(fromUsername);
+  return getProfileUrl(notif.fromUser.username);
 };
 
 // ─── Array utils ──────────────────────────────────────────

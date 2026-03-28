@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { MessageCircle, ThumbsUp } from "lucide-react";
+import { MessageCircle, Share2, ThumbsUp } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import type { InfiniteData } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ import {
   cn,
 } from "../../lib/utils";
 import type { Post, ReactionType, PaginatedResponse } from "../../types";
+import { toast } from "sonner";
 
 interface Props {
   post: Post;
@@ -152,6 +153,18 @@ export const PostCardReactionBar = ({
     else navigate(`/posts/${post.id}`);
   };
 
+  const handleShareClick = async () => {
+    const url = `${window.location.origin}/posts/${post.id}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Đã copy link bài viết!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Không thể copy link!");
+    }
+  };
+
   return (
     <div className="space-y-1">
       {(post.likesCount > 0 || post.commentsCount > 0) && (
@@ -216,6 +229,14 @@ export const PostCardReactionBar = ({
         >
           <MessageCircle size={15} />
           <span>Bình luận</span>
+        </button>
+
+        <button
+          onClick={handleShareClick}
+          className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
+        >
+          <Share2 size={15} />
+          <span>Chia sẻ</span>
         </button>
       </div>
     </div>

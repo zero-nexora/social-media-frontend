@@ -5,38 +5,52 @@ import { notificationsApi } from "../../services/api-services";
 import { UserAvatar } from "../shared/user-avatar";
 import { fromNow, getNotifText, getNotifTarget, cn } from "../../lib/utils";
 import type { Notification } from "../../types";
+import { useNotificationStore } from "../../stores/notification-store";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
+import { useState } from "react";
 
 interface Props {
   notification: Notification;
-  onRead?: (id: string) => void;
 }
 
-export const NotificationItem = ({ notification, onRead }: Props) => {
+export const NotificationItem = ({ notification }: Props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { markRead: storeMarkRead, decrement } = useNotificationStore();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const readMutation = useMutation({
+  const markReadMutation = useMutation({
     mutationFn: () => notificationsApi.markRead(notification.id),
     onSuccess: () => {
-      onRead?.(notification.id);
+      storeMarkRead(notification.id);
+      if (!notification.isRead) decrement();
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => notificationsApi.delete(notification.id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+    onSuccess: () => {
+      if (!notification.isRead) {
+        decrement();
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
   });
 
   const handleClick = () => {
-    if (!notification.isRead) readMutation.mutate();
-    const target = getNotifTarget(
-      notification.type,
-      notification.targetId,
-      notification.fromUser.username,
-    );
-    navigate(target);
+    if (!notification.isRead) markReadMutation.mutate();
+    navigate(getNotifTarget(notification));
   };
 
   return (
@@ -77,11 +91,30 @@ export const NotificationItem = ({ notification, onRead }: Props) => {
         className="absolute top-3 right-3 p-1 rounded-full hover:bg-muted opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground"
         onClick={(e) => {
           e.stopPropagation();
-          deleteMutation.mutate();
+          setDeleteOpen(true);
         }}
       >
         <Trash2 size={13} />
       </button>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xoá thông báo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Thông báo này sẽ bị xoá vĩnh viễn và không thể khôi phục.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+              Huỷ
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteMutation.mutate()}>
+              Xác nhận
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

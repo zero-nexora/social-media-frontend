@@ -252,7 +252,7 @@ export default function PostDetailPage() {
         >
           <ChevronLeft size={16} /> Trang chủ
         </Link>
-        <span>›</span>
+        <span>{">"}</span>
         <span className="text-foreground">Bài viết</span>
       </div>
 

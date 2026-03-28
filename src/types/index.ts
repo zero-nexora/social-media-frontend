@@ -11,7 +11,6 @@ export type NotifType =
   | "COMMENT_REPLY"
   | "NEW_FOLLOWER";
 
-/** Derived friendship state used by FE to render the correct button */
 export type FriendshipStatus =
   | "none"
   | "pending_sent"
@@ -37,10 +36,8 @@ export interface User {
   updatedAt: string;
 }
 
-/** Minimal user info returned in nested includes */
 export type UserBasic = Pick<User, "id" | "username" | "avatar">;
 
-/** User info shown on friend/follower cards */
 export type UserCard = Pick<
   User,
   "id" | "username" | "avatar" | "friendsCount"
@@ -50,7 +47,6 @@ export interface UserSearchResult extends User {
   friendshipStatus: FriendshipStatus;
 }
 
-/** Full profile response — includes computed friendshipStatus & isFollowing */
 export interface UserProfile extends User {
   friendshipStatus: FriendshipStatus;
   isFollowing: boolean;
@@ -67,10 +63,8 @@ export interface Post {
   commentsCount: number;
   createdAt: string;
   updatedAt: string;
-  // Nested
   user: UserBasic;
   _count: { reactions: number; comments: number };
-  /** The currently logged-in user's own reaction. Array with 0 or 1 element. */
   reactions: Array<{ type: ReactionType }>;
 }
 
@@ -136,7 +130,9 @@ export interface Notification {
   userId: string;
   fromUserId: string;
   type: NotifType;
-  targetId: string | null;
+  postId: string | null;
+  commentId: string | null;
+  friendshipId: string | null;
   targetType: string | null;
   isRead: boolean;
   createdAt: string;

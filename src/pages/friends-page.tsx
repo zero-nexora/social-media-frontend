@@ -81,8 +81,10 @@ export default function FriendsPage() {
     (s) => !dismissed.has(s.user.id),
   );
 
-  const friendIds = friends.map((f) => f.id);
-  usePresence(friendIds);
+  const friendIds  = friends.map((f) => f.id);
+  const senderIds  = requests.map((r) => r.sender?.id).filter(Boolean) as string[];
+ 
+  usePresence([...new Set([...friendIds, ...senderIds])]);
 
   const filteredFriends = friendSearch
     ? friends.filter((f) =>

@@ -33,7 +33,6 @@ export const FriendRequestCard = ({
 
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
-      {/* Avatar + online badge */}
       <div className="relative shrink-0">
         <UserAvatar user={sender} size="lg" />
         <OnlineBadge userId={sender.id} className="absolute bottom-0 right-0" />
@@ -151,7 +150,6 @@ export const FriendCard = ({
 }) => {
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/30 transition-colors">
-      {/* Avatar + online dot */}
       <div className="relative shrink-0">
         <UserAvatar user={friend} size="md" />
         <OnlineBadge userId={friend.id} className="absolute bottom-0 right-0" />

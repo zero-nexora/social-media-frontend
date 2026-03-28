@@ -66,18 +66,18 @@ export const useSocket = () => {
     };
 
     // ── Friend events ─────────────────────────────────────
-    const onFriendRequest = (payload: SocketFriendRequestPayload) => {
+    const onFriendRequest = (_payload: SocketFriendRequestPayload) => {
       incrementFriendRequest();
-      if (location.pathname !== "/friends") {
-        toast.info(`${payload.sender.username} đã gửi lời mời kết bạn`);
-      }
+      // if (location.pathname !== "/friends") {
+      //   toast.info(`${payload.sender.username} đã gửi lời mời kết bạn`);
+      // }
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
     };
 
-    const onFriendAccepted = (payload: SocketFriendAcceptedPayload) => {
-      toast.success(
-        `${payload.accepter.username} đã chấp nhận lời mời kết bạn`,
-      );
+    const onFriendAccepted = (_payload: SocketFriendAcceptedPayload) => {
+      // toast.success(
+      //   `${payload.accepter.username} đã chấp nhận lời mời kết bạn`,
+      // );
       queryClient.invalidateQueries({ queryKey: ["friends"] });
     };
 

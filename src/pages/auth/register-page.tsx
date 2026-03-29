@@ -17,6 +17,7 @@ import {
 import { FormField } from "../../components/shared/form-field";
 import { PasswordInput } from "../../components/shared/password-input";
 import { PasswordStrengthBar } from "../../components/shared/password-strength-bar";
+import { GoogleButton } from "../../components/shared/google-button";
 
 const schema = z
   .object({
@@ -187,6 +188,17 @@ export default function RegisterPage() {
             {registerMutation.isPending ? "Đang tạo..." : "Tạo tài khoản"}
           </Button>
         </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border/60" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">hoặc</span>
+          </div>
+        </div>
+
+        <GoogleButton label="Đăng ký với Google" />
 
         <p className="text-sm text-center text-muted-foreground pt-2 border-t border-border/60">
           Đã có tài khoản?{" "}

@@ -26,6 +26,7 @@ import PostDetailPage from "./pages/post-detail-page";
 import SettingsPage from "./pages/settings-page";
 import NotFoundPage from "./pages/not-found-page";
 import { ThemeProvider } from "./components/theme-provider";
+import OAuthCallbackPage from "./pages/oauth/oauth-callback-page";
 
 function AppBootstrap({ children }: { children: React.ReactNode }) {
   const { isReady } = useBootstrap();
@@ -57,6 +58,8 @@ export default function App() {
                   </GuestRoute>
                 }
               />
+
+              <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
               <Route
                 path="/login"

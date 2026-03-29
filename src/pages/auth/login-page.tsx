@@ -19,6 +19,7 @@ import { AuthCard, AuthCardHeader } from "../../components/shared/auth-card";
 import { StatusBanner } from "../../components/shared/status-banner";
 import { FormField } from "../../components/shared/form-field";
 import { PasswordInput } from "../../components/shared/password-input";
+import { GoogleButton } from "../../components/shared/google-button";
 
 const schema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -39,6 +40,7 @@ export default function LoginPage() {
   const isVerifiedBanner = searchParams.get("verified") === "true";
   const isResetBanner = searchParams.get("reset") === "success";
   const isChangedBanner = searchParams.get("changed") === "true";
+  const isGoogleError = searchParams.get("error") === "google";
 
   const {
     register,
@@ -110,6 +112,12 @@ export default function LoginPage() {
           </StatusBanner>
         )}
 
+        {isGoogleError && (
+          <StatusBanner variant="warning">
+            Đăng nhập bằng Google thất bại, vui lòng thử lại.
+          </StatusBanner>
+        )}
+
         <form
           onSubmit={handleSubmit((d) => loginMutation.mutate(d))}
           className="space-y-4"
@@ -148,6 +156,17 @@ export default function LoginPage() {
             {loginMutation.isPending ? "Đang đăng nhập..." : "Đăng nhập"}
           </Button>
         </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border/60" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">hoặc</span>
+          </div>
+        </div>
+
+        <GoogleButton />
 
         <p className="text-sm text-center text-muted-foreground pt-2 border-t border-border/60">
           Chưa có tài khoản?{" "}

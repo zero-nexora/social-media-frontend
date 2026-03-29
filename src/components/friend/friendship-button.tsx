@@ -55,6 +55,8 @@ export const FriendshipButton = ({
   onStatusChange,
 }: Props) => {
   const [unfriendOpen, setUnfriendOpen] = useState(false);
+  const [blockOpen, setBlockOpen] = useState(false);
+  const [unBlockOpen, setUnblockOpen] = useState(false);
 
   const send = useFriendAction(
     () => friendshipsApi.sendRequest(targetId),
@@ -156,7 +158,7 @@ export const FriendshipButton = ({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={() => block.mutate()}
+              onClick={() => setBlockOpen(true)}
             >
               <Ban size={13} className="mr-2" /> Chặn
             </DropdownMenuItem>
@@ -182,6 +184,46 @@ export const FriendshipButton = ({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <AlertDialog open={blockOpen} onOpenChange={setBlockOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Chặn người dùng?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn sẽ không còn nhận tin từ họ nữa.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Huỷ</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive hover:bg-destructive/90"
+                onClick={() => block.mutate()}
+              >
+                Xác nhận
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={unBlockOpen} onOpenChange={setUnblockOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Huỷ chặn người dùng?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn sẽ bắt đầu nhận tin từ họ nữa.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Huỷ</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive hover:bg-destructive/90"
+                onClick={() => unblock.mutate()}
+              >
+                Xác nhận
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </>
     );
   }
@@ -192,7 +234,7 @@ export const FriendshipButton = ({
         size="sm"
         variant="outline"
         className="border-destructive text-destructive hover:bg-destructive/10"
-        onClick={() => unblock.mutate()}
+        onClick={() => setUnblockOpen(true)}
       >
         <Ban size={14} className="mr-1.5" /> Đã chặn
       </Button>

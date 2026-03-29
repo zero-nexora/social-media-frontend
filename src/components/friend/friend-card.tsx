@@ -7,6 +7,17 @@ import { OnlineBadge } from "../shared/online-badge";
 import { Button } from "../ui/button";
 import { fromNow } from "../../lib/utils";
 import type { Friendship, User, FriendSuggestion } from "../../types";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 // ─── FriendRequestCard ────────────────────────────────────
 export const FriendRequestCard = ({
@@ -148,6 +159,8 @@ export const FriendCard = ({
   friend: User;
   onUnfriend?: (id: string) => void;
 }) => {
+  const [unfriendOpen, setUnfriendOpen] = useState(false);
+
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/30 transition-colors">
       <div className="relative shrink-0">
@@ -168,14 +181,36 @@ export const FriendCard = ({
       </div>
 
       {onUnfriend && (
-        <Button
-          size="sm"
-          variant="ghost"
-          className="text-xs text-muted-foreground shrink-0"
-          onClick={() => onUnfriend(friend.id)}
-        >
-          Huỷ kết bạn
-        </Button>
+        <>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-xs text-muted-foreground shrink-0"
+            onClick={() => setUnfriendOpen(true)}
+          >
+            Huỷ kết bạn
+          </Button>
+
+          <AlertDialog open={unfriendOpen} onOpenChange={setUnfriendOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Huỷ kết bạn?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Bạn sẽ không còn là bạn bè nữa.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive hover:bg-destructive/90"
+                  onClick={() => onUnfriend(friend.id)}
+                >
+                  Xác nhận
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
       )}
     </div>
   );

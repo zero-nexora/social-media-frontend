@@ -8,6 +8,7 @@ interface Props {
   initialValue?: string;
   onChange: (html: string, text: string) => void;
   onReset?: (resetFn: () => void) => void;
+  onSetValue?: (setValueFn: (html: string) => void) => void;
   autoFocus?: boolean;
 }
 
@@ -16,6 +17,7 @@ export const PostEditor = ({
   initialValue,
   onChange,
   onReset,
+  onSetValue,
   autoFocus,
 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,9 +30,22 @@ export const PostEditor = ({
     }
   }, []);
 
+  const setValue = useCallback((html: string) => {
+    const quill = quillRef.current;
+    if (!quill) return;
+    quill.history.clear();
+    quill.clipboard.dangerouslyPasteHTML(0, html);
+    quill.setSelection(quill.getLength(), 0);
+    quill.history.clear();
+  }, []);
+
   useEffect(() => {
     onReset?.(resetEditor);
   }, [onReset, resetEditor]);
+
+  useEffect(() => {
+    onSetValue?.(setValue);
+  }, [onSetValue, setValue]);
 
   useEffect(() => {
     if (!containerRef.current || quillRef.current) return;
@@ -87,7 +102,6 @@ export const PostEditor = ({
     return () => {
       quillRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

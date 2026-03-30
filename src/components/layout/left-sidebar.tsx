@@ -30,12 +30,10 @@ export const LeftSidebar = () => {
   const location = useLocation();
   const { unreadCount, friendRequestCount } = useNotificationStore();
 
-  const profilePath = user ? `/profile/${user.username}` : "/profile";
+  const profilePath = `/profile/${user?.username}`;
 
   const isActive = (path: string) =>
-    path === "/profile"
-      ? location.pathname.startsWith("/profile")
-      : location.pathname === path;
+    location.pathname === (path === "/profile" ? profilePath : path);
 
   const getBadge = (key?: BadgeKey) => {
     if (key === "friends") return friendRequestCount;

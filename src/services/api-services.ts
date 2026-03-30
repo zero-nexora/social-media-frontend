@@ -431,6 +431,6 @@ export const bootstrapApi = {
 export const aiApi = {
   generateCaption: (imageUrls: string[], language: "vi" | "en" = "vi") =>
     api
-      .post<{ caption: string }>("/ai/caption", { imageUrls, language })
-      .then((r) => r.data.caption),
+      .post<{ captions: string[] }>("/ai/caption", { imageUrls, language })
+      .then((r) => r.data.captions),
 };

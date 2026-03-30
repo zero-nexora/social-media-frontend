@@ -5,7 +5,7 @@ import { aiApi } from "../services/api-services";
 export const useGenerateCaption = () => {
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const generate = async (imageUrls: string[]): Promise<string | null> => {
+  const generate = async (imageUrls: string[]): Promise<string[] | null> => {
     if (!imageUrls.length) return null;
     setIsGenerating(true);
     try {

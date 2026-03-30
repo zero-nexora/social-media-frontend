@@ -55,6 +55,8 @@ export const CreatePostDialog = ({
   const upload = useCloudinaryUpload("posts");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editorResetRef = useRef<(() => void) | null>(null);
+  const editorSetValueRef = useRef<((html: string) => void) | null>(null);
+  const [captions, setCaptions] = useState<string[]>([]);
 
   const [html, setHtml] = useState("");
   const [plainText, setPlainText] = useState("");
@@ -152,17 +154,14 @@ export const CreatePostDialog = ({
     }
 
     if (!urls.length) return;
-    const caption = await generate(urls);
-    if (caption) {
-      setHtml(`<p>${caption}</p>`);
-      setPlainText(caption);
-      editorResetRef.current?.();
-      setTimeout(() => {
-        setHtml(`<p>${caption}</p>`);
-        setPlainText(caption);
-      }, 0);
-    }
+    const results = await generate(urls);
+    if (results?.length) setCaptions(results);
   }, [upload, generate]);
+
+  const handleSelectCaption = useCallback((caption: string) => {
+    editorSetValueRef.current?.(`<p>${caption}</p>`);
+    setCaptions([]);
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
@@ -212,8 +211,45 @@ export const CreatePostDialog = ({
             onReset={(fn) => {
               editorResetRef.current = fn;
             }}
+            onSetValue={(fn) => {
+              // thêm prop này
+              editorSetValueRef.current = fn;
+            }}
             autoFocus={open}
           />
+
+          {captions.length > 0 && (
+            <div className="rounded-xl border bg-muted/40 overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b">
+                <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                  <Sparkles size={12} className="text-purple-500" />
+                  Chọn caption
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCaptions([])}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Đóng
+                </button>
+              </div>
+              <div className="divide-y">
+                {captions.map((caption, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => handleSelectCaption(caption)}
+                    className="w-full text-left px-3 py-2.5 text-sm hover:bg-muted transition-colors leading-relaxed"
+                  >
+                    <span className="text-xs font-medium text-purple-500 mr-2">
+                      #{i + 1}
+                    </span>
+                    {caption}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <MediaUploadZone
             items={upload.items}

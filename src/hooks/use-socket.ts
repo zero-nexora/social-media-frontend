@@ -73,6 +73,9 @@ export const useSocket = () => {
       //   toast.info(`${payload.sender.username} đã gửi lời mời kết bạn`);
       // }
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-suggestions-sidebar"],
+      });
     };
 
     const onFriendAccepted = (_payload: SocketFriendAcceptedPayload) => {

@@ -8,6 +8,7 @@ import { UserAvatar } from "../shared/user-avatar";
 import { OnlineBadge } from "../shared/online-badge";
 import { Button } from "../ui/button";
 import type { FriendSuggestion } from "../../types";
+import { toast } from "sonner";
 
 export const RightSidebar = () => {
   const queryClient = useQueryClient();
@@ -22,6 +23,7 @@ export const RightSidebar = () => {
   const sendRequestMutation = useMutation({
     mutationFn: (userId: string) => friendshipsApi.sendRequest(userId),
     onSuccess: (_, userId) => {
+      toast.success("Đã gửi lời mời");
       setSent((prev) => new Set(prev).add(userId));
       queryClient.invalidateQueries({
         queryKey: ["friend-suggestions-sidebar"],

@@ -7,7 +7,7 @@ import {
   Users,
   Ban,
 } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { friendshipsApi } from "../../services/api-services";
 import { Button } from "../ui/button";
@@ -28,6 +28,7 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import type { FriendshipStatus } from "../../types";
+import { useNotificationStore } from "../../stores/notification-store";
 
 interface Props {
   targetId: string;
@@ -35,47 +36,48 @@ interface Props {
   onStatusChange: () => void;
 }
 
-function useFriendAction(
-  fn: () => Promise<unknown>,
-  onStatusChange: () => void,
-  successMsg?: string,
-) {
-  return useMutation({
-    mutationFn: fn,
-    onSuccess: () => {
-      onStatusChange();
-      if (successMsg) toast.success(successMsg);
-    },
-  });
-}
-
 export const FriendshipButton = ({
   targetId,
   status,
   onStatusChange,
 }: Props) => {
+  const queryClient = useQueryClient();
+  const { decrementFriendRequest } = useNotificationStore();
   const [unfriendOpen, setUnfriendOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
   const [unBlockOpen, setUnblockOpen] = useState(false);
 
-  const send = useFriendAction(
-    () => friendshipsApi.sendRequest(targetId),
-    onStatusChange,
-    "Đã gửi lời mời",
-  );
-  const cancel = useFriendAction(
-    () => friendshipsApi.cancel(targetId),
-    onStatusChange,
-  );
-  const accept = useFriendAction(
-    () => friendshipsApi.accept(targetId),
-    onStatusChange,
-    "Đã chấp nhận lời mời",
-  );
-  const reject = useFriendAction(
-    () => friendshipsApi.reject(targetId),
-    onStatusChange,
-  );
+  const send = useMutation({
+    mutationFn: () => friendshipsApi.sendRequest(targetId),
+    onSuccess: () => {
+      onStatusChange();
+      queryClient.invalidateQueries({
+        queryKey: ["friend-suggestions-sidebar"],
+      });
+      toast.success("Đã gửi lời mời");
+    },
+  });
+  const cancel = useMutation({
+    mutationFn: () => friendshipsApi.cancel(targetId),
+    onSuccess: () => {
+      onStatusChange();
+    },
+  });
+  const accept = useMutation({
+    mutationFn: () => friendshipsApi.accept(targetId),
+    onSuccess: () => {
+      decrementFriendRequest();
+      onStatusChange();
+      toast.success("Đã chấp nhận lời mời");
+    },
+  });
+  const reject = useMutation({
+    mutationFn: () => friendshipsApi.reject(targetId),
+    onSuccess: () => {
+      decrementFriendRequest();
+      onStatusChange();
+    },
+  });
   const unfriend = useMutation({
     mutationFn: () => friendshipsApi.unfriend(targetId),
     onSuccess: () => {
@@ -84,14 +86,19 @@ export const FriendshipButton = ({
       toast.info("Đã huỷ kết bạn");
     },
   });
-  const block = useFriendAction(
-    () => friendshipsApi.block(targetId),
-    onStatusChange,
-  );
-  const unblock = useFriendAction(
-    () => friendshipsApi.unblock(targetId),
-    onStatusChange,
-  );
+  const block = useMutation({
+    mutationFn: () => friendshipsApi.block(targetId),
+    onSuccess: () => {
+      onStatusChange();
+      toast.info("Đã chặn người dùng");
+    },
+  });
+  const unblock = useMutation({
+    mutationFn: () => friendshipsApi.unblock(targetId),
+    onSuccess: () => {
+      onStatusChange();
+    },
+  });
 
   if (status === "none") {
     return (
@@ -204,6 +211,21 @@ export const FriendshipButton = ({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+      </>
+    );
+  }
+
+  if (status === "blocked") {
+    return (
+      <>
+        <Button
+          size="sm"
+          variant="outline"
+          className="border-destructive text-destructive hover:bg-destructive/10"
+          onClick={() => setUnblockOpen(true)}
+        >
+          <Ban size={14} className="mr-1.5" /> Đã chặn
+        </Button>
 
         <AlertDialog open={unBlockOpen} onOpenChange={setUnblockOpen}>
           <AlertDialogContent>
@@ -225,19 +247,6 @@ export const FriendshipButton = ({
           </AlertDialogContent>
         </AlertDialog>
       </>
-    );
-  }
-
-  if (status === "blocked") {
-    return (
-      <Button
-        size="sm"
-        variant="outline"
-        className="border-destructive text-destructive hover:bg-destructive/10"
-        onClick={() => setUnblockOpen(true)}
-      >
-        <Ban size={14} className="mr-1.5" /> Đã chặn
-      </Button>
     );
   }
 

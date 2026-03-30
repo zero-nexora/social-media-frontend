@@ -18,6 +18,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import { useNotificationStore } from "../../stores/notification-store";
+import { toast } from "sonner";
 
 // ─── FriendRequestCard ────────────────────────────────────
 export const FriendRequestCard = ({
@@ -27,20 +29,31 @@ export const FriendRequestCard = ({
 }) => {
   const queryClient = useQueryClient();
   const sender = friendship.sender!;
+  const { decrementFriendRequest } = useNotificationStore();
+  const [handled, setHandled] = useState(false);
 
   const acceptMutation = useMutation({
     mutationFn: () => friendshipsApi.accept(sender.id),
     onSuccess: () => {
+      decrementFriendRequest();
+      setHandled(true);
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
     },
+    onError: () => toast.error("Thao tác thất bại"),
   });
 
   const rejectMutation = useMutation({
     mutationFn: () => friendshipsApi.reject(sender.id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] }),
+    onSuccess: () => {
+      decrementFriendRequest();
+      setHandled(true);
+      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
+    },
+    onError: () => toast.error("Thao tác thất bại"),
   });
+
+  if (handled) return null;
 
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
@@ -101,8 +114,10 @@ export const FriendSuggestionCard = ({
   const sendMutation = useMutation({
     mutationFn: () => friendshipsApi.sendRequest(user.id),
     onSuccess: () => {
+      toast.info(`Đã gửi lời mời đến ${user.username}`);
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
     },
+    onError: () => toast.error("Gửi lời mời thất bại"),
   });
 
   return (
@@ -160,6 +175,9 @@ export const FriendCard = ({
   onUnfriend?: (id: string) => void;
 }) => {
   const [unfriendOpen, setUnfriendOpen] = useState(false);
+  const [removed, setRemoved] = useState(false);
+
+  if (removed) return null;
 
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/30 transition-colors">
@@ -203,7 +221,10 @@ export const FriendCard = ({
                 <AlertDialogCancel>Huỷ</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-destructive hover:bg-destructive/90"
-                  onClick={() => onUnfriend(friend.id)}
+                  onClick={() => {
+                    setRemoved(true);
+                    onUnfriend(friend.id);
+                  }}
                 >
                   Xác nhận
                 </AlertDialogAction>

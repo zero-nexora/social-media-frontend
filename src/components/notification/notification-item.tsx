@@ -25,15 +25,15 @@ interface Props {
 export const NotificationItem = ({ notification }: Props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { markRead: storeMarkRead, decrement } = useNotificationStore();
+  const { markRead: storeMarkRead, decrementUnread } = useNotificationStore();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const markReadMutation = useMutation({
     mutationFn: () => notificationsApi.markRead(notification.id),
     onSuccess: () => {
       storeMarkRead(notification.id);
-      if (!notification.isRead) decrement();
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications-preview"] });
     },
   });
 
@@ -41,15 +41,19 @@ export const NotificationItem = ({ notification }: Props) => {
     mutationFn: () => notificationsApi.delete(notification.id),
     onSuccess: () => {
       if (!notification.isRead) {
-        decrement();
+        decrementUnread();
       }
 
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications-preview"] });
     },
   });
 
   const handleClick = () => {
-    if (!notification.isRead) markReadMutation.mutate();
+    if (!notification.isRead) {
+      decrementUnread();
+      markReadMutation.mutate();
+    }
     navigate(getNotifTarget(notification));
   };
 

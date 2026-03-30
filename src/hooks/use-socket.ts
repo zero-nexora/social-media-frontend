@@ -15,7 +15,7 @@ import type {
 export const useSocket = () => {
   const { user, accessToken } = useAuthStore();
   const { connect, disconnect, socket } = useSocketStore();
-  const { addNotification, increment, incrementFriendRequest } =
+  const { addNotification, incrementUnread, incrementFriendRequest } =
     useNotificationStore();
   const { setOnline, setOffline, clear: clearPresence } = usePresenceStore();
   const queryClient = useQueryClient();
@@ -31,6 +31,7 @@ export const useSocket = () => {
       clearPresence();
     };
   }, [user?.id, accessToken]); // eslint-disable-line
+
   useEffect(() => {
     if (!socket) return;
 
@@ -57,7 +58,7 @@ export const useSocket = () => {
     // ── Notifications ─────────────────────────────────────
     const onNewNotification = (notif: Notification) => {
       addNotification(notif);
-      increment();
+      incrementUnread();
       if (location.pathname !== "/notifications") {
         toast(notif.fromUser.username, {
           description: getNotifDesc(notif.type, notif.fromUser.username),
@@ -79,6 +80,7 @@ export const useSocket = () => {
       //   `${payload.accepter.username} đã chấp nhận lời mời kết bạn`,
       // );
       queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
     };
 
     // ── Presence — another user came online ───────────────

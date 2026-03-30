@@ -7,8 +7,8 @@ interface NotificationState {
   friendRequestCount: number;
 
   setUnreadCount: (n: number) => void;
-  increment: () => void;
-  decrement: (by?: number) => void;
+  incrementUnread: () => void;
+  decrementUnread: (by?: number) => void;
   addNotification: (notif: Notification) => void;
   markRead: (id: string) => void;
   markAllRead: () => void;
@@ -24,9 +24,9 @@ export const useNotificationStore = create<NotificationState>((set) => ({
 
   setUnreadCount: (n) => set({ unreadCount: n }),
 
-  increment: () => set((s) => ({ unreadCount: s.unreadCount + 1 })),
+  incrementUnread: () => set((s) => ({ unreadCount: s.unreadCount + 1 })),
 
-  decrement: (by = 1) =>
+  decrementUnread: (by = 1) =>
     set((s) => ({ unreadCount: Math.max(0, s.unreadCount - by) })),
 
   addNotification: (notif) =>

@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useAuthStore } from "../stores/auth-store";
 import { useNotificationStore } from "../stores/notification-store";
 import { useSocketStore } from "../stores/socket-store";
-import type { RefreshResponse, User } from "../types";
-
-const BASE_URL = import.meta.env.VITE_API_URL as string;
+import { bootstrapApi } from "../services/api-services";
 
 export const useBootstrap = () => {
   const [isReady, setIsReady] = useState(false);
@@ -16,55 +13,24 @@ export const useBootstrap = () => {
   useEffect(() => {
     const restore = async () => {
       try {
-        const refreshRes = await axios.post<RefreshResponse>(
-          `${BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true },
-        );
+        const token = await bootstrapApi.refresh();
+        const user = await bootstrapApi.getMe(token);
 
-        const accessToken = refreshRes.data.accessToken;
-
-        const meRes = await axios.get<{ user: User }>(`${BASE_URL}/users/me`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          withCredentials: true,
-        });
-
-        const user = meRes.data.user;
-
-        setAuth(user, accessToken);
-        connect(user.id, accessToken);
+        setAuth(user, token);
+        connect(user.id, token);
 
         try {
-          const [countRes, requestRes] = await Promise.all([
-            axios.get<{ count: number }>(
-              `${BASE_URL}/notifications/unread-count`,
-              {
-                headers: { Authorization: `Bearer ${accessToken}` },
-                withCredentials: true,
-              },
-            ),
-            axios.get<{
-              data: unknown[];
-              hasMore: boolean;
-              nextCursor: string | null;
-            }>(`${BASE_URL}/friendships/requests?limit=1`, {
-              headers: { Authorization: `Bearer ${accessToken}` },
-              withCredentials: true,
-            }),
+          const [unreadCount, friendRequestCount] = await Promise.all([
+            bootstrapApi.getUnreadCount(token),
+            bootstrapApi.getFriendRequestCount(token),
           ]);
-
-          setUnreadCount(countRes.data.count);
-
-          const requestCount = requestRes.data.hasMore
-            ? 99
-            : requestRes.data.data.length;
-          setFriendRequestCount(requestCount);
+          setUnreadCount(unreadCount);
+          setFriendRequestCount(friendRequestCount);
         } catch {
           // Non-critical — badges just start at 0
         }
       } catch {
-        // No valid session — store stays empty.
-        // ProtectedRoute will redirect to /login automatically.
+        // No valid session — ProtectedRoute will redirect to /login
       } finally {
         setIsReady(true);
       }

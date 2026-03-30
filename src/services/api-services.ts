@@ -18,7 +18,10 @@ import type {
   MessageResponse,
   Privacy,
   ReactionType,
+  RefreshResponse,
 } from "../types";
+
+const BASE_URL = import.meta.env.VITE_API_URL as string;
 
 // ─── Auth ─────────────────────────────────────────────────
 export const authApi = {
@@ -389,4 +392,51 @@ export const storiesApi = {
 
   delete: (id: string) =>
     api.delete<MessageResponse>(`/stories/${id}`).then((r) => r.data),
+};
+
+// ─── Bootstrap ────────────────────────────────────────────
+export const bootstrapApi = {
+  refresh: () =>
+    api
+      .post<RefreshResponse>(
+        `${BASE_URL}/auth/refresh`,
+        {},
+        { withCredentials: true },
+      )
+      .then((r) => r.data.accessToken),
+
+  getMe: (token: string) =>
+    api
+      .get<{ user: User }>(`${BASE_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      })
+      .then((r) => r.data.user),
+
+  getUnreadCount: (token: string) =>
+    api
+      .get<{ count: number }>(`${BASE_URL}/notifications/unread-count`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      })
+      .then((r) => r.data.count),
+
+  getFriendRequestCount: (token: string) =>
+    api
+      .get<{ data: unknown[]; hasMore: boolean }>(
+        `${BASE_URL}/friendships/requests?limit=1`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        },
+      )
+      .then((r) => (r.data.hasMore ? 99 : r.data.data.length)),
+};
+
+// ─── AI ───────────────────────────────────────────────────
+export const aiApi = {
+  generateCaption: (imageUrls: string[], language: "vi" | "en" = "vi") =>
+    api
+      .post<{ caption: string }>("/ai/caption", { imageUrls, language })
+      .then((r) => r.data.caption),
 };

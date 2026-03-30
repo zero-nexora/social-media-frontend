@@ -21,8 +21,6 @@ import type {
   RefreshResponse,
 } from "../types";
 
-const BASE_URL = import.meta.env.VITE_API_URL as string;
-
 // ─── Auth ─────────────────────────────────────────────────
 export const authApi = {
   register: (data: { username: string; email: string; password: string }) =>
@@ -398,16 +396,12 @@ export const storiesApi = {
 export const bootstrapApi = {
   refresh: () =>
     api
-      .post<RefreshResponse>(
-        `${BASE_URL}/auth/refresh`,
-        {},
-        { withCredentials: true },
-      )
+      .post<RefreshResponse>(`/auth/refresh`, {}, { withCredentials: true })
       .then((r) => r.data.accessToken),
 
   getMe: (token: string) =>
     api
-      .get<{ user: User }>(`${BASE_URL}/users/me`, {
+      .get<{ user: User }>(`/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       })
@@ -415,7 +409,7 @@ export const bootstrapApi = {
 
   getUnreadCount: (token: string) =>
     api
-      .get<{ count: number }>(`${BASE_URL}/notifications/unread-count`, {
+      .get<{ count: number }>(`/notifications/unread-count`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       })
@@ -424,7 +418,7 @@ export const bootstrapApi = {
   getFriendRequestCount: (token: string) =>
     api
       .get<{ data: unknown[]; hasMore: boolean }>(
-        `${BASE_URL}/friendships/requests?limit=1`,
+        `/friendships/requests?limit=1`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,

@@ -20,7 +20,8 @@ export const RightSidebar = () => {
     queryFn: () => friendshipsApi.getSuggestions(5),
   });
 
-  const sendRequestMutation = useMutation({
+  
+  const sendRequest = useMutation({
     mutationFn: (userId: string) => friendshipsApi.sendRequest(userId),
     onSuccess: (_, userId) => {
       toast.success("Đã gửi lời mời");
@@ -75,8 +76,8 @@ export const RightSidebar = () => {
               size="sm"
               variant={sent.has(s.user.id) ? "secondary" : "default"}
               className="h-7 px-2 text-xs"
-              disabled={sent.has(s.user.id) || sendRequestMutation.isPending}
-              onClick={() => sendRequestMutation.mutate(s.user.id)}
+              disabled={sent.has(s.user.id) || sendRequest.isPending}
+              onClick={() => sendRequest.mutate(s.user.id)}
             >
               {sent.has(s.user.id) ? "Đã gửi" : <UserPlus size={13} />}
             </Button>

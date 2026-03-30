@@ -157,7 +157,6 @@ export const CreatePostDialog = ({
       setHtml(`<p>${caption}</p>`);
       setPlainText(caption);
       editorResetRef.current?.();
-      // Re-inject into editor after reset
       setTimeout(() => {
         setHtml(`<p>${caption}</p>`);
         setPlainText(caption);

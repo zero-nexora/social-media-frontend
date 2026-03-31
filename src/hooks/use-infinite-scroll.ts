@@ -8,7 +8,6 @@ interface Options {
   rootMargin?: string;
 }
 
-
 export const useInfiniteScroll = ({
   hasNextPage,
   isFetchingNextPage,
@@ -28,7 +27,7 @@ export const useInfiniteScroll = ({
           fetchNextPage();
         }
       },
-      { threshold, rootMargin }
+      { threshold, rootMargin },
     );
 
     observer.observe(sentinel);

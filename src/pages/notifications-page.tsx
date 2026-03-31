@@ -52,6 +52,8 @@ export default function NotificationsPage() {
 
   const notifications = data?.pages.flatMap((p) => p.data) ?? [];
 
+  console.log(notifications);
+
   return (
     <div className="max-w-2xl mx-auto">
       {/* Header */}

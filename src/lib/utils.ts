@@ -1,8 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { NotifType, Privacy, ReactionType } from "../types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import type { NotifType, Privacy, ReactionType } from "../types";
+import "dayjs/locale/vi";
 
 dayjs.extend(relativeTime);
 dayjs.locale("vi");

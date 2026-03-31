@@ -9,7 +9,7 @@ import type { Post } from "../../types";
 
 interface Props {
   post: Post;
-  userId?: string,
+  userId?: string;
   variant?: "compact" | "full";
   onCommentClick?: () => void;
 }

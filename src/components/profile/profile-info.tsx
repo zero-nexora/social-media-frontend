@@ -180,9 +180,6 @@ export const ProfileInfo = ({
         <div className="mt-2 space-y-1">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold">{profile.username}</h1>
-            {!isOwn && (
-              <OnlineBadge userId={profile.id} size="sm" className="mt-0.5" />
-            )}
           </div>
           {profile.bio && (
             <p className="text-sm text-muted-foreground">{profile.bio}</p>

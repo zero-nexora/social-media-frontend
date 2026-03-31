@@ -26,9 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
-import {
-  getPasswordStrength,
-} from "../lib/utils";
+import { getPasswordStrength } from "../lib/utils";
 import { PasswordStrengthBar } from "../components/shared/password-strength-bar";
 
 // ─── Constants ────────────────────────────────────────

@@ -88,15 +88,21 @@ export const useSocket = () => {
       });
     };
 
-    const onFriendAccepted = (_payload: SocketFriendAcceptedPayload) => {
+    const onFriendAccepted = (payload: SocketFriendAcceptedPayload) => {
       // toast.success(
       //   `${payload.accepter.username} đã chấp nhận lời mời kết bạn`,
       // );
       queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.accepter.username],
+      });
       queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["friends", payload.accepter.id],
+      });
     };
 
     const onFriendRequestCancelled = (

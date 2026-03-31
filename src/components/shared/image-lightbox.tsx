@@ -10,14 +10,23 @@ interface Props {
   onClose: () => void;
 }
 
-export const ImageLightbox = ({ images, initialIndex = 0, open, onClose }: Props) => {
+export const ImageLightbox = ({
+  images,
+  initialIndex = 0,
+  open,
+  onClose,
+}: Props) => {
   const [current, setCurrent] = useState(initialIndex);
 
-  const prev = useCallback(() =>
-    setCurrent((i) => (i - 1 + images.length) % images.length), [images.length]);
+  const prev = useCallback(
+    () => setCurrent((i) => (i - 1 + images.length) % images.length),
+    [images.length],
+  );
 
-  const next = useCallback(() =>
-    setCurrent((i) => (i + 1) % images.length), [images.length]);
+  const next = useCallback(
+    () => setCurrent((i) => (i + 1) % images.length),
+    [images.length],
+  );
 
   useEffect(() => {
     if (!open) return;

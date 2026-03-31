@@ -73,14 +73,18 @@ export const useSocket = () => {
     };
 
     // ── Friend events ─────────────────────────────────────
-    const onFriendRequest = (_payload: SocketFriendRequestPayload) => {
+    const onFriendRequest = (payload: SocketFriendRequestPayload) => {
       incrementFriendRequest();
       // if (location.pathname !== "/friends") {
       //   toast.info(`${payload.sender.username} đã gửi lời mời kết bạn`);
       // }
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
       queryClient.invalidateQueries({
         queryKey: ["friend-suggestions-sidebar"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.sender.username],
       });
     };
 
@@ -88,29 +92,30 @@ export const useSocket = () => {
       // toast.success(
       //   `${payload.accepter.username} đã chấp nhận lời mời kết bạn`,
       // );
+      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
-      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
     };
 
     const onFriendRequestCancelled = (
-      _payload: SocketFriendRequestCancelledPayload,
+      payload: SocketFriendRequestCancelledPayload,
     ) => {
       decrementFriendRequest();
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.sender.username],
+      });
     };
 
     const onFriendUnfriended = (_payload: SocketFriendUnfriendedPayload) => {
       queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
 
       queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
 
       queryClient.invalidateQueries({ queryKey: ["feed"] });
-
-      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
-      queryClient.invalidateQueries({
-        queryKey: ["friend-suggestions-sidebar"],
-      });
     };
 
     // ── Presence — another user came online ───────────────

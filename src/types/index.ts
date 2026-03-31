@@ -208,7 +208,7 @@ export interface SocketFriendAcceptedPayload {
 }
 
 export interface SocketFriendRequestCancelledPayload {
-  senderId: string;
+  sender: UserBasic;
 }
 
 export interface SocketFriendUnfriendedPayload {

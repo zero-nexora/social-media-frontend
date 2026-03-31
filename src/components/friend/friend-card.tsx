@@ -20,6 +20,7 @@ import {
 } from "../ui/alert-dialog";
 import { useNotificationStore } from "../../stores/notification-store";
 import { toast } from "sonner";
+import { useAuth } from "../../hooks/use-auth";
 
 // ─── FriendRequestCard ────────────────────────────────────
 export const FriendRequestCard = ({
@@ -27,6 +28,7 @@ export const FriendRequestCard = ({
 }: {
   friendship: Friendship;
 }) => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const sender = friendship.sender!;
   const { decrementFriendRequest } = useNotificationStore();
@@ -39,6 +41,9 @@ export const FriendRequestCard = ({
       setHandled(true);
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
     },
     onError: () => toast.error("Thao tác thất bại"),
   });
@@ -48,7 +53,9 @@ export const FriendRequestCard = ({
     onSuccess: () => {
       decrementFriendRequest();
       setHandled(true);
+      toast.info("Đã từ chối lời mời");
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
     },
     onError: () => toast.error("Thao tác thất bại"),
   });
@@ -114,10 +121,14 @@ export const FriendSuggestionCard = ({
   const sendMutation = useMutation({
     mutationFn: () => friendshipsApi.sendRequest(user.id),
     onSuccess: () => {
-      toast.info(`Đã gửi lời mời đến ${user.username}`);
+      toast.info(`Đã gửi lời mời đến ${user.username || "người dùng"}`);
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-suggestions-sidebar"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
     },
-    onError: () => toast.error("Gửi lời mời thất bại"),
+    onError: () => toast.error("Thao tác thất bại"),
   });
 
   return (
@@ -178,12 +189,11 @@ export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
       setCancelled(true);
       toast.info(`Đã huỷ lời mời gửi đến ${receiver.username}`);
       queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
-      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
       queryClient.invalidateQueries({
-        queryKey: ["friend-suggestions-sidebar"],
+        queryKey: ["profile", receiver.username],
       });
     },
-    onError: () => toast.error("Huỷ lời mời thất bại"),
+    onError: () => toast.error("Thao tác thất bại"),
   });
 
   if (cancelled) return null;

@@ -27,17 +27,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
-import type { FriendshipStatus } from "../../types";
+import type { FriendshipStatus, User } from "../../types";
 import { useNotificationStore } from "../../stores/notification-store";
 
 interface Props {
-  targetId: string;
+  profile: User;
   status: FriendshipStatus;
   onStatusChange: () => void;
 }
 
 export const FriendshipButton = ({
-  targetId,
+  profile,
   status,
   onStatusChange,
 }: Props) => {
@@ -48,56 +48,86 @@ export const FriendshipButton = ({
   const [unBlockOpen, setUnblockOpen] = useState(false);
 
   const send = useMutation({
-    mutationFn: () => friendshipsApi.sendRequest(targetId),
+    mutationFn: () => friendshipsApi.sendRequest(profile.id),
     onSuccess: () => {
       onStatusChange();
+      toast.info(`Đã gửi lời mời đến ${profile.username}`);
       queryClient.invalidateQueries({
         queryKey: ["friend-suggestions-sidebar"],
       });
-      toast.success("Đã gửi lời mời");
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
     },
+    onError: () => toast.error("Thao tác thất bại"),
   });
+
   const cancel = useMutation({
-    mutationFn: () => friendshipsApi.cancel(targetId),
+    mutationFn: () => friendshipsApi.cancel(profile.id),
     onSuccess: () => {
       onStatusChange();
+      toast.info(`Đã huỷ lời mời gửi đến ${profile.username}`);
+      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
     },
+    onError: () => toast.error("Thao tác thất bại"),
   });
+
   const accept = useMutation({
-    mutationFn: () => friendshipsApi.accept(targetId),
+    mutationFn: () => friendshipsApi.accept(profile.id),
     onSuccess: () => {
       decrementFriendRequest();
       onStatusChange();
       toast.success("Đã chấp nhận lời mời");
+      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", profile.id] });
     },
+    onError: () => toast.error("Thao tác thất bại"),
   });
+
   const reject = useMutation({
-    mutationFn: () => friendshipsApi.reject(targetId),
+    mutationFn: () => friendshipsApi.reject(profile.id),
     onSuccess: () => {
       decrementFriendRequest();
       onStatusChange();
+      toast.info("Đã từ chối lời mời");
+      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
     },
+    onError: () => toast.error("Thao tác thất bại"),
   });
+
   const unfriend = useMutation({
-    mutationFn: () => friendshipsApi.unfriend(targetId),
+    mutationFn: () => friendshipsApi.unfriend(profile.id),
     onSuccess: () => {
       onStatusChange();
       setUnfriendOpen(false);
       toast.info("Đã huỷ kết bạn");
     },
+    onError: () => toast.error("Thao tác thất bại"),
   });
+
   const block = useMutation({
-    mutationFn: () => friendshipsApi.block(targetId),
+    mutationFn: () => friendshipsApi.block(profile.id),
     onSuccess: () => {
       onStatusChange();
       toast.info("Đã chặn người dùng");
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", profile.id] });
     },
+    onError: () => toast.error("Thao tác thất bại"),
   });
+
   const unblock = useMutation({
-    mutationFn: () => friendshipsApi.unblock(targetId),
+    mutationFn: () => friendshipsApi.unblock(profile.id),
     onSuccess: () => {
       onStatusChange();
+      toast.info("Đã huỷ chặn người dùng");
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", profile.id] });
     },
+    onError: () => toast.error("Thao tác thất bại"),
   });
 
   if (status === "none") {

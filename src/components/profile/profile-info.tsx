@@ -159,7 +159,7 @@ export const ProfileInfo = ({
             ) : (
               <>
                 <FriendshipButton
-                  targetId={profile.id}
+                  profile={profile}
                   status={friendshipStatus}
                   onStatusChange={onRefresh}
                 />

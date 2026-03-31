@@ -20,16 +20,20 @@ export const RightSidebar = () => {
     queryFn: () => friendshipsApi.getSuggestions(5),
   });
 
-  
   const sendRequest = useMutation({
     mutationFn: (userId: string) => friendshipsApi.sendRequest(userId),
     onSuccess: (_, userId) => {
-      toast.success("Đã gửi lời mời");
+      const user = suggestions.find((s) => s.user.id === userId)?.user;
+      toast.info(`Đã gửi lời mời đến ${user?.username || "người dùng"}`);
       setSent((prev) => new Set(prev).add(userId));
       queryClient.invalidateQueries({
         queryKey: ["friend-suggestions-sidebar"],
       });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
     },
+    onError: () => toast.error("Gửi lời mời thất bại"),
   });
 
   const visible = (suggestions as FriendSuggestion[]).filter(

@@ -28,7 +28,7 @@ export const NotificationItem = ({ notification }: Props) => {
   const { markRead: storeMarkRead, decrementUnread } = useNotificationStore();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const markReadMutation = useMutation({
+  const markRead = useMutation({
     mutationFn: () => notificationsApi.markRead(notification.id),
     onSuccess: () => {
       storeMarkRead(notification.id);
@@ -52,7 +52,7 @@ export const NotificationItem = ({ notification }: Props) => {
   const handleClick = () => {
     if (!notification.isRead) {
       decrementUnread();
-      markReadMutation.mutate();
+      markRead.mutate();
     }
     navigate(getNotifTarget(notification));
   };

@@ -32,7 +32,7 @@ export const FriendRequestCard = ({
   const { decrementFriendRequest } = useNotificationStore();
   const [handled, setHandled] = useState(false);
 
-  const acceptMutation = useMutation({
+  const accept = useMutation({
     mutationFn: () => friendshipsApi.accept(sender.id),
     onSuccess: () => {
       decrementFriendRequest();
@@ -43,7 +43,7 @@ export const FriendRequestCard = ({
     onError: () => toast.error("Thao tác thất bại"),
   });
 
-  const rejectMutation = useMutation({
+  const reject = useMutation({
     mutationFn: () => friendshipsApi.reject(sender.id),
     onSuccess: () => {
       decrementFriendRequest();
@@ -82,16 +82,16 @@ export const FriendRequestCard = ({
       <div className="flex gap-2 shrink-0">
         <Button
           size="sm"
-          onClick={() => acceptMutation.mutate()}
-          disabled={acceptMutation.isPending}
+          onClick={() => accept.mutate()}
+          disabled={accept.isPending}
         >
           <Check size={14} className="mr-1" /> Xác nhận
         </Button>
         <Button
           size="sm"
           variant="outline"
-          onClick={() => rejectMutation.mutate()}
-          disabled={rejectMutation.isPending}
+          onClick={() => reject.mutate()}
+          disabled={reject.isPending}
         >
           <X size={14} className="mr-1" /> Xoá
         </Button>

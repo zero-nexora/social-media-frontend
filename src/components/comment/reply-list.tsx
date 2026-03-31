@@ -48,7 +48,7 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
   const [editContent, setEditContent] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const updateMutation = useMutation({
+  const update = useMutation({
     mutationFn: () => commentsApi.update(editingId!, editContent),
     onSuccess: () => {
       setEditingId(null);
@@ -127,13 +127,11 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
                     />
                     <div className="flex gap-3">
                       <button
-                        onClick={() => updateMutation.mutate()}
-                        disabled={
-                          !editContent.trim() || updateMutation.isPending
-                        }
+                        onClick={() => update.mutate()}
+                        disabled={!editContent.trim() || update.isPending}
                         className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
                       >
-                        {updateMutation.isPending ? "Đang lưu..." : "Lưu"}
+                        {update.isPending ? "Đang lưu..." : "Lưu"}
                       </button>
                       <button
                         onClick={() => setEditingId(null)}

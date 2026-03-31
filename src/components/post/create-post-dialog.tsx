@@ -95,7 +95,7 @@ export const CreatePostDialog = ({
     [upload],
   );
 
-  const createMutation = useMutation({
+  const create = useMutation({
     mutationFn: async () => {
       let mediaUrls: string[] = [];
       if (upload.hasFiles) mediaUrls = await upload.uploadAll();
@@ -128,7 +128,7 @@ export const CreatePostDialog = ({
     onError: (err: Error) => toast.error(err.message || "Đăng bài thất bại"),
   });
 
-  const isWorking = createMutation.isPending || upload.isUploading;
+  const isWorking = create.isPending || upload.isUploading;
   const canSubmit =
     (plainText.trim().length > 0 || upload.hasFiles) &&
     !isWorking &&
@@ -139,7 +139,7 @@ export const CreatePostDialog = ({
       const done = upload.items.filter((x) => x.status === "done").length;
       return `Đang tải ${done}/${upload.items.length}...`;
     }
-    if (createMutation.isPending) return "Đang đăng...";
+    if (create.isPending) return "Đang đăng...";
     return "Đăng";
   };
 
@@ -324,7 +324,7 @@ export const CreatePostDialog = ({
               Huỷ
             </Button>
             <Button
-              onClick={() => createMutation.mutate()}
+              onClick={() => create.mutate()}
               disabled={!canSubmit}
               className="min-w-18"
             >

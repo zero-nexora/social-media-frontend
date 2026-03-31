@@ -15,7 +15,7 @@ export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const mutation = useMutation({
+  const cover = useMutation({
     mutationFn: (file: File) => usersApi.updateCover(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile", username] });
@@ -40,11 +40,11 @@ export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
         <>
           <button
             onClick={() => inputRef.current?.click()}
-            disabled={mutation.isPending}
+            disabled={cover.isPending}
             className="absolute top-3 right-3 flex items-center gap-1.5 bg-foreground/50 hover:bg-foreground/70 disabled:opacity-60 text-background text-xs px-3 py-1.5 rounded-full transition-colors backdrop-blur-sm"
           >
             <Camera size={13} />
-            {mutation.isPending ? "Đang tải..." : "Cập nhật ảnh bìa"}
+            {cover.isPending ? "Đang tải..." : "Cập nhật ảnh bìa"}
           </button>
           <input
             ref={inputRef}
@@ -52,7 +52,7 @@ export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
             accept="image/*"
             className="hidden"
             onChange={(e) =>
-              e.target.files?.[0] && mutation.mutate(e.target.files[0])
+              e.target.files?.[0] && cover.mutate(e.target.files[0])
             }
           />
         </>

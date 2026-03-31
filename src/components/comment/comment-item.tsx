@@ -1,19 +1,32 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Trash2, MoreHorizontal, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { toast } from "sonner";
 import { commentsApi } from "../../services/api-services";
 import { useAuth } from "../../hooks/use-auth";
 import { UserAvatar } from "../shared/user-avatar";
 import { ReplyList } from "./reply-list";
 import {
-  DropdownMenu, DropdownMenuContent,
-  DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { fromNow } from "../../lib/utils";
 import type { Comment } from "../../types";
@@ -36,7 +49,7 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
 
   const replyCount = comment._count?.replies ?? 0;
 
-  const updateMutation = useMutation({
+  const update = useMutation({
     mutationFn: () => commentsApi.update(comment.id, editContent),
     onSuccess: () => {
       setEditing(false);
@@ -71,14 +84,17 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
             />
             <div className="flex gap-3">
               <button
-                onClick={() => updateMutation.mutate()}
-                disabled={!editContent.trim() || updateMutation.isPending}
+                onClick={() => update.mutate()}
+                disabled={!editContent.trim() || update.isPending}
                 className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
               >
-                {updateMutation.isPending ? "Đang lưu..." : "Lưu"}
+                {update.isPending ? "Đang lưu..." : "Lưu"}
               </button>
               <button
-                onClick={() => { setEditing(false); setEditContent(comment.content); }}
+                onClick={() => {
+                  setEditing(false);
+                  setEditContent(comment.content);
+                }}
                 className="text-xs text-muted-foreground hover:underline"
               >
                 Huỷ
@@ -90,7 +106,9 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
             <span className="font-semibold text-sm block leading-tight">
               {comment.user.username}
             </span>
-            <p className="text-sm whitespace-pre-wrap wrap-break-word">{comment.content}</p>
+            <p className="text-sm whitespace-pre-wrap wrap-break-word">
+              {comment.content}
+            </p>
           </div>
         )}
 
@@ -112,9 +130,15 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
               onClick={() => setShowReplies((v) => !v)}
             >
               {showReplies ? (
-                <><ChevronUp size={12} />Ẩn bớt</>
+                <>
+                  <ChevronUp size={12} />
+                  Ẩn bớt
+                </>
               ) : (
-                <><ChevronDown size={12} />Xem {replyCount} trả lời</>
+                <>
+                  <ChevronDown size={12} />
+                  Xem {replyCount} trả lời
+                </>
               )}
             </button>
           )}

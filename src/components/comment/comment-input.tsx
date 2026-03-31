@@ -44,7 +44,7 @@ export const CommentInput = ({
     if (replyTo) setTimeout(() => textareaRef.current?.focus(), 50);
   }, [replyTo]);
 
-  const createMutation = useMutation({
+  const create = useMutation({
     mutationFn: (text: string) =>
       replyTo
         ? commentsApi.createReply(replyTo.id, text)
@@ -67,8 +67,8 @@ export const CommentInput = ({
 
   const handleSubmit = () => {
     const text = content.trim();
-    if (!text || createMutation.isPending) return;
-    createMutation.mutate(text);
+    if (!text || create.isPending) return;
+    create.mutate(text);
   };
 
   if (!user) return null;
@@ -120,10 +120,10 @@ export const CommentInput = ({
         />
         <button
           onClick={handleSubmit}
-          disabled={!content.trim() || createMutation.isPending}
+          disabled={!content.trim() || create.isPending}
           className={cn(
             "p-2 rounded-full transition-colors shrink-0 mb-0.5",
-            content.trim() && !createMutation.isPending
+            content.trim() && !create.isPending
               ? "text-primary hover:bg-primary/10"
               : "text-muted-foreground cursor-not-allowed",
           )}

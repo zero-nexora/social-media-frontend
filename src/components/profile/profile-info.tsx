@@ -45,7 +45,7 @@ export const ProfileInfo = ({
 
   usePresence(isOwn ? [] : [profile.id]);
 
-  const avatarMutation = useMutation({
+  const avatar = useMutation({
     mutationFn: (file: File) => usersApi.updateAvatar(file),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -56,7 +56,7 @@ export const ProfileInfo = ({
     onError: () => toast.error("Cập nhật thất bại"),
   });
 
-  const editMutation = useMutation({
+  const edit = useMutation({
     mutationFn: () =>
       usersApi.updateMe({
         username: editUsername !== profile.username ? editUsername : undefined,
@@ -78,13 +78,15 @@ export const ProfileInfo = ({
     },
   });
 
-  const followMutation = useMutation({
+  const follow = useMutation({
     mutationFn: () =>
       isFollowing
         ? followersApi.unfollow(profile.id)
         : followersApi.follow(profile.id),
     onSuccess: () => {
       onRefresh();
+      queryClient.invalidateQueries({ queryKey: ["following", profile.id] });
+      queryClient.invalidateQueries({ queryKey: ["followers", profile.id] });
       toast.info(isFollowing ? "Đã bỏ theo dõi" : "Đã theo dõi");
     },
   });
@@ -130,7 +132,7 @@ export const ProfileInfo = ({
               <>
                 <button
                   onClick={() => avatarInputRef.current?.click()}
-                  disabled={avatarMutation.isPending}
+                  disabled={avatar.isPending}
                   className="absolute bottom-0 right-0 w-7 h-7 bg-muted border-2 border-background rounded-full flex items-center justify-center hover:bg-muted/70 transition-colors disabled:opacity-60 z-10"
                 >
                   <Camera size={13} />
@@ -141,8 +143,7 @@ export const ProfileInfo = ({
                   accept="image/*"
                   className="hidden"
                   onChange={(e) =>
-                    e.target.files?.[0] &&
-                    avatarMutation.mutate(e.target.files[0])
+                    e.target.files?.[0] && avatar.mutate(e.target.files[0])
                   }
                 />
               </>
@@ -165,8 +166,8 @@ export const ProfileInfo = ({
                 <Button
                   size="sm"
                   variant={isFollowing ? "secondary" : "outline"}
-                  onClick={() => followMutation.mutate()}
-                  disabled={followMutation.isPending}
+                  onClick={() => follow.mutate()}
+                  disabled={follow.isPending}
                 >
                   {isFollowing ? "Đang theo dõi" : "Theo dõi"}
                 </Button>
@@ -225,10 +226,10 @@ export const ProfileInfo = ({
             </div>
             <Button
               className="w-full"
-              onClick={() => editMutation.mutate()}
-              disabled={editMutation.isPending}
+              onClick={() => edit.mutate()}
+              disabled={edit.isPending}
             >
-              {editMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+              {edit.isPending ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </div>
         </SheetContent>

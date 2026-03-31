@@ -2,12 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Globe, Users, Lock } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import {
   Select,
@@ -58,7 +53,7 @@ export const EditPostDialog = ({ post, open, onClose }: Props) => {
     onClose();
   };
 
-  const updateMutation = useMutation({
+  const update = useMutation({
     mutationFn: () =>
       postsApi.update(post.id, {
         content: plainText.trim() ? html : undefined,
@@ -157,10 +152,10 @@ export const EditPostDialog = ({ post, open, onClose }: Props) => {
             Huỷ
           </Button>
           <Button
-            onClick={() => updateMutation.mutate()}
-            disabled={!isDirty || updateMutation.isPending}
+            onClick={() => update.mutate()}
+            disabled={!isDirty || update.isPending}
           >
-            {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+            {update.isPending ? "Đang lưu..." : "Lưu thay đổi"}
           </Button>
         </div>
       </DialogContent>

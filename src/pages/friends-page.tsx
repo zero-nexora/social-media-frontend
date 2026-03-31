@@ -5,7 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Users, Search } from "lucide-react";
+import { Users, Search, Clock } from "lucide-react";
 import { friendshipsApi } from "../services/api-services";
 import { useInfiniteScroll } from "../hooks/use-infinite-scroll";
 import { usePresence } from "../hooks/use-presence";
@@ -13,6 +13,7 @@ import {
   FriendRequestCard,
   FriendSuggestionCard,
   FriendCard,
+  SentRequestCard,
 } from "../components/friend/friend-card";
 import { UserCardSkeleton } from "../components/shared/skeleton-card";
 import { Input } from "../components/ui/input";
@@ -45,6 +46,26 @@ export default function FriendsPage() {
     isFetchingNextPage: fetchingRequests,
   });
 
+  const {
+    data: sentData,
+    fetchNextPage: fetchMoreSent,
+    hasNextPage: hasMoreSent,
+    isFetchingNextPage: fetchingSent,
+    isLoading: loadingSent,
+  } = useInfiniteQuery({
+    queryKey: ["friendship-sent"],
+    queryFn: ({ pageParam }) =>
+      friendshipsApi.getSent(pageParam as string | undefined),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+
+  const sentSentinelRef = useInfiniteScroll({
+    fetchNextPage: fetchMoreSent,
+    hasNextPage: hasMoreSent,
+    isFetchingNextPage: fetchingSent,
+  });
+
   const { data: suggestions = [] } = useQuery({
     queryKey: ["friend-suggestions"],
     queryFn: () => friendshipsApi.getSuggestions(10),
@@ -72,19 +93,34 @@ export default function FriendsPage() {
 
   const unfriendMutation = useMutation({
     mutationFn: (userId: string) => friendshipsApi.unfriend(userId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["friends"] }),
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["friends"] });
+    //   queryClient.invalidateQueries({ queryKey: ["profile"] });
+    //   queryClient.invalidateQueries({ queryKey: ["feed"] });
+    //   queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+    //   queryClient.invalidateQueries({
+    //     queryKey: ["friend-suggestions-sidebar"],
+    //   });
+    // },
+    onError: () => queryClient.invalidateQueries({ queryKey: ["friends"] }),
   });
 
   const requests = requestData?.pages.flatMap((p) => p.data) ?? [];
+  const sent = sentData?.pages.flatMap((p) => p.data) ?? [];
   const friends = (friendData?.pages.flatMap((p) => p.data) ?? []) as User[];
   const visibleSuggestions = suggestions.filter(
     (s) => !dismissed.has(s.user.id),
   );
 
-  const friendIds  = friends.map((f) => f.id);
-  const senderIds  = requests.map((r) => r.sender?.id).filter(Boolean) as string[];
- 
-  usePresence([...new Set([...friendIds, ...senderIds])]);
+  const friendIds = friends.map((f) => f.id);
+  const senderIds = requests
+    .map((r) => r.sender?.id)
+    .filter(Boolean) as string[];
+  const receiverIds = sent
+    .map((r) => r.receiver?.id)
+    .filter(Boolean) as string[];
+
+  usePresence([...new Set([...friendIds, ...senderIds, ...receiverIds])]);
 
   const filteredFriends = friendSearch
     ? friends.filter((f) =>
@@ -126,6 +162,39 @@ export default function FriendsPage() {
           ))}
           {fetchingRequests && <UserCardSkeleton />}
           <div ref={requestSentinelRef} />
+        </div>
+      </section>
+
+      {/* ─── Lời mời đã gửi ──────────────────────────── */}
+      <section>
+        <h2 className="font-bold text-lg mb-3 flex items-center gap-2">
+          <Clock size={18} className="text-muted-foreground" />
+          Lời mời đã gửi
+          {sent.length > 0 && (
+            <span className="text-sm font-normal text-muted-foreground">
+              ({sent.length})
+            </span>
+          )}
+        </h2>
+        <div className="bg-card border rounded-xl overflow-hidden divide-y">
+          {loadingSent &&
+            Array.from({ length: 2 }).map((_, i) => (
+              <UserCardSkeleton key={i} />
+            ))}
+
+          {!loadingSent && sent.length === 0 && (
+            <div className="py-8 text-center">
+              <p className="text-sm text-muted-foreground">
+                Chưa gửi lời mời kết bạn nào
+              </p>
+            </div>
+          )}
+
+          {sent.map((f) => (
+            <SentRequestCard key={f.id} friendship={f} />
+          ))}
+          {fetchingSent && <UserCardSkeleton />}
+          <div ref={sentSentinelRef} />
         </div>
       </section>
 

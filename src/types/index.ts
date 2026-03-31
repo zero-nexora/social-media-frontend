@@ -206,3 +206,12 @@ export interface SocketFriendAcceptedPayload {
   friendship: Friendship;
   accepter: UserBasic;
 }
+
+export interface SocketFriendRequestCancelledPayload {
+  senderId: string;
+}
+
+export interface SocketFriendUnfriendedPayload {
+  userId: string;
+  targetId: string;
+}

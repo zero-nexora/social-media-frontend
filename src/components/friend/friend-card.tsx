@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, X, UserPlus } from "lucide-react";
+import { Check, X, UserPlus, Clock } from "lucide-react";
 import { friendshipsApi } from "../../services/api-services";
 import { UserAvatar } from "../shared/user-avatar";
 import { OnlineBadge } from "../shared/online-badge";
@@ -162,6 +162,64 @@ export const FriendSuggestionCard = ({
           <X size={13} />
         </button>
       </div>
+    </div>
+  );
+};
+
+// ─── SentRequestCard — lời mời mình đã gửi, chờ đối phương ─
+export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
+  const queryClient = useQueryClient();
+  const receiver = friendship.receiver!;
+  const [cancelled, setCancelled] = useState(false);
+
+  const cancelMutation = useMutation({
+    mutationFn: () => friendshipsApi.cancel(receiver.id),
+    onSuccess: () => {
+      setCancelled(true);
+      toast.info(`Đã huỷ lời mời gửi đến ${receiver.username}`);
+      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-suggestions-sidebar"],
+      });
+    },
+    onError: () => toast.error("Huỷ lời mời thất bại"),
+  });
+
+  if (cancelled) return null;
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
+      <div className="relative shrink-0">
+        <UserAvatar user={receiver} size="lg" />
+        <OnlineBadge
+          userId={receiver.id}
+          className="absolute bottom-0 right-0"
+        />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <Link
+          to={`/profile/${receiver.username}`}
+          className="font-semibold text-sm hover:underline"
+        >
+          {receiver.username}
+        </Link>
+        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+          <Clock size={10} />
+          Đang chờ xác nhận · {fromNow(friendship.updatedAt)}
+        </p>
+      </div>
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => cancelMutation.mutate()}
+        disabled={cancelMutation.isPending}
+        className="shrink-0"
+      >
+        {cancelMutation.isPending ? "Đang huỷ..." : "Huỷ lời mời"}
+      </Button>
     </div>
   );
 };

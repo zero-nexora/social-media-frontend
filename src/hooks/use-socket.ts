@@ -10,13 +10,19 @@ import type {
   Notification,
   SocketFriendRequestPayload,
   SocketFriendAcceptedPayload,
+  SocketFriendRequestCancelledPayload,
+  SocketFriendUnfriendedPayload,
 } from "../types";
 
 export const useSocket = () => {
   const { user, accessToken } = useAuthStore();
   const { connect, disconnect, socket } = useSocketStore();
-  const { addNotification, incrementUnread, incrementFriendRequest } =
-    useNotificationStore();
+  const {
+    addNotification,
+    incrementUnread,
+    incrementFriendRequest,
+    decrementFriendRequest,
+  } = useNotificationStore();
   const { setOnline, setOffline, clear: clearPresence } = usePresenceStore();
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -86,6 +92,27 @@ export const useSocket = () => {
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
     };
 
+    const onFriendRequestCancelled = (
+      _payload: SocketFriendRequestCancelledPayload,
+    ) => {
+      decrementFriendRequest();
+      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    };
+
+    const onFriendUnfriended = (_payload: SocketFriendUnfriendedPayload) => {
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
+
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-suggestions-sidebar"],
+      });
+    };
+
     // ── Presence — another user came online ───────────────
     const onUserOnline = ({ userId }: { userId: string }) => {
       setOnline(userId);
@@ -98,6 +125,8 @@ export const useSocket = () => {
 
     socket.on("new_notification", onNewNotification);
     socket.on("friend_request", onFriendRequest);
+    socket.on("friend_request_cancelled", onFriendRequestCancelled);
+    socket.on("friend_unfriended", onFriendUnfriended);
     socket.on("friend_accepted", onFriendAccepted);
     socket.on("user:online", onUserOnline);
     socket.on("user:offline", onUserOffline);
@@ -105,7 +134,9 @@ export const useSocket = () => {
     return () => {
       socket.off("new_notification", onNewNotification);
       socket.off("friend_request", onFriendRequest);
+      socket.off("friend_request_cancelled", onFriendRequestCancelled);
       socket.off("friend_accepted", onFriendAccepted);
+      socket.off("friend_unfriended", onFriendUnfriended);
       socket.off("user:online", onUserOnline);
       socket.off("user:offline", onUserOffline);
     };

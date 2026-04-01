@@ -81,6 +81,8 @@ export const MediaUploadZone = ({
               <video
                 src={item.preview}
                 className="w-full h-full object-cover"
+                controls
+                playsInline
                 muted
               />
             ) : (

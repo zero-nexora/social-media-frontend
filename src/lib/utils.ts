@@ -143,7 +143,7 @@ export const getNotifTarget = (notif: {
   friendshipId: string | null;
   fromUser: { username: string };
 }): string => {
-  if (notif.type === "POST_REACT" || notif.type === "POST_COMMENT") {
+  if (notif.type === "POST_REACT" || notif.type === "POST_COMMENT" || notif.type === "NEW_POST") {
     return getPostUrl(notif.postId ?? "");
   }
   if (notif.type === "COMMENT_REPLY") {

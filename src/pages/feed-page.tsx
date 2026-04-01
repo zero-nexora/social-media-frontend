@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Image, Smile, Tag } from "lucide-react";
 import { postsApi } from "../services/api-services";
@@ -9,6 +9,7 @@ import { PostCard } from "../components/post/post-card";
 import { PostCardSkeleton } from "../components/shared/skeleton-card";
 import { CreatePostDialog } from "../components/post/create-post-dialog";
 import { UserAvatar } from "../components/shared/user-avatar";
+import { useFeedNewPosts } from "../hooks/use-feed-new-posts";
 
 interface QuickActionProps {
   icon: React.ReactNode;
@@ -34,6 +35,13 @@ export default function FeedPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createWithMedia, setCreateWithMedia] = useState(false);
 
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useFeedNewPosts({ onScrollToTop: scrollToTop });
+
+  // ── Infinite feed query ─────────────────────────────────────────────────────
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: ["feed"],

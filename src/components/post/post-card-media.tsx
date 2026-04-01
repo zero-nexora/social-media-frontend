@@ -16,18 +16,26 @@ function getLayout(count: number): GridLayout {
   return "four-plus";
 }
 
+function isVideo(url: string): boolean {
+  return url.includes("/video/upload/");
+}
+
 export const PostCardMedia = ({ urls, className }: Props) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   if (urls.length === 0) return null;
 
+  const imageUrls = urls.filter((u) => !isVideo(u));
   const count = urls.length;
   const extra = count > 4 ? count - 4 : 0;
   const layout = getLayout(count);
 
   const openLightbox = (i: number) => {
-    setLightboxIndex(i);
+    if (isVideo(urls[i])) return;
+    const imageIndex = imageUrls.indexOf(urls[i]);
+    if (imageIndex === -1) return;
+    setLightboxIndex(imageIndex);
     setLightboxOpen(true);
   };
 
@@ -118,7 +126,7 @@ export const PostCardMedia = ({ urls, className }: Props) => {
 
       <ImageLightbox
         key={`${lightboxOpen}-${lightboxIndex}`}
-        images={urls}
+        images={imageUrls}
         initialIndex={lightboxIndex}
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
@@ -139,24 +147,38 @@ const Thumb = ({
   className?: string;
   extra: number;
   openLightbox: (index: number) => void;
-}) => (
-  <div
-    className={cn(
-      "relative overflow-hidden cursor-pointer bg-muted group",
-      cls,
-    )}
-    onClick={() => openLightbox(index)}
-  >
-    <img
-      src={src}
-      alt=""
-      loading="lazy"
-      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-200"
-    />
-    {extra > 0 && index === 3 && (
-      <div className="absolute inset-0 bg-foreground/55 flex items-center justify-center">
-        <span className="text-background text-2xl font-bold">+{extra}</span>
-      </div>
-    )}
-  </div>
-);
+}) => {
+  const video = isVideo(src);
+
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden cursor-pointer bg-muted group",
+        cls,
+      )}
+      onClick={() => !video && openLightbox(index)}
+    >
+      {video ? (
+        <video
+          src={src}
+          controls
+          playsInline
+          className="w-full h-full object-cover"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : (
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-200"
+        />
+      )}
+      {extra > 0 && index === 3 && (
+        <div className="absolute inset-0 bg-foreground/55 flex items-center justify-center">
+          <span className="text-background text-2xl font-bold">+{extra}</span>
+        </div>
+      )}
+    </div>
+  );
+};

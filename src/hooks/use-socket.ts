@@ -14,6 +14,7 @@ import type {
   SocketFriendUnfriendedPayload,
   SocketStoryNewPayload,
   SocketStoryViewedPayload,
+  SocketStoryDeletedPayload,
 } from "../types";
 
 export const useSocket = () => {
@@ -129,6 +130,10 @@ export const useSocket = () => {
       });
     };
 
+    const onStoryDeleted = (_payload: SocketStoryDeletedPayload) => {
+      queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
+    };
+
     // ── Presence — another user came online ───────────────
     const onUserOnline = ({ userId }: { userId: string }) => {
       setOnline(userId);
@@ -141,6 +146,7 @@ export const useSocket = () => {
 
     socket.on("new_notification", onNewNotification);
     socket.on("story:new", onStoryNew);
+    socket.on("story:deleted", onStoryDeleted);
     socket.on("story:viewed", onStoryViewed);
     socket.on("friend_request", onFriendRequest);
     socket.on("friend_request_cancelled", onFriendRequestCancelled);
@@ -152,6 +158,7 @@ export const useSocket = () => {
     return () => {
       socket.off("new_notification", onNewNotification);
       socket.off("story:new", onStoryNew);
+      socket.off("story:deleted", onStoryDeleted);
       socket.off("story:viewed", onStoryViewed);
       socket.off("friend_request", onFriendRequest);
       socket.off("friend_request_cancelled", onFriendRequestCancelled);

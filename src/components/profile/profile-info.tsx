@@ -13,6 +13,7 @@ import { cn } from "../../lib/utils";
 import type { User, FriendshipStatus } from "../../types";
 import { AvatarDefault } from "../shared/avatar-default";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../stores/auth-store";
 
 interface Props {
   profile: User;
@@ -40,6 +41,7 @@ export const ProfileInfo = ({
 }: Props) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { updateUser } = useAuthStore();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [editUsername, setEditUsername] = useState(profile.username);
@@ -49,7 +51,8 @@ export const ProfileInfo = ({
 
   const avatar = useMutation({
     mutationFn: (file: File) => usersApi.updateAvatar(file),
-    onSuccess: () => {
+    onSuccess: ({ avatarUrl }) => {
+      updateUser({ avatar: avatarUrl });
       queryClient.invalidateQueries({
         queryKey: ["profile", profile.username],
       });
@@ -64,20 +67,24 @@ export const ProfileInfo = ({
         username: editUsername !== profile.username ? editUsername : undefined,
         bio: editBio !== (profile.bio ?? "") ? editBio : undefined,
       }),
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
       setEditOpen(false);
-      const usernameChanged = editUsername !== profile.username;
+      const newUsername = updatedUser.username;
+      const usernameChanged = newUsername !== profile.username;
+
+      updateUser({ username: newUsername, bio: updatedUser.bio });
+
+      queryClient.removeQueries({ queryKey: ["profile", profile.username] });
+
       if (usernameChanged) {
         navigate(`/profile/${editUsername}`, { replace: true });
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["profile", profile.username],
+        });
+        onRefresh();
       }
-      queryClient.invalidateQueries({
-        queryKey: [
-          "profile",
-          usernameChanged ? editUsername : profile.username,
-        ],
-      });
       toast.success("Đã cập nhật thông tin");
-      onRefresh();
     },
     onError: (err: any) => {
       const msg = err?.response?.data?.error?.message ?? "";
@@ -96,8 +103,12 @@ export const ProfileInfo = ({
         : followersApi.follow(profile.id),
     onSuccess: () => {
       onRefresh();
-      queryClient.invalidateQueries({ queryKey: ["following", profile.id] });
-      queryClient.invalidateQueries({ queryKey: ["followers", profile.id] });
+      if (isFollowing) {
+        queryClient.invalidateQueries({ queryKey: ["following", profile.id] });
+      }
+      else {
+        queryClient.invalidateQueries({ queryKey: ["followers", profile.id] });
+      }
       toast.info(isFollowing ? "Đã bỏ theo dõi" : "Đã theo dõi");
     },
   });

@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2, AlertCircle, Chrome } from "lucide-react";
 import { usersApi, authApi } from "../services/api-services";
 import { useAuth } from "../hooks/use-auth";
 import { Button } from "../components/ui/button";
@@ -87,6 +87,8 @@ export default function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
+
+  const isGoogleAccount = !!user?.googleId;
 
   const {
     register,
@@ -176,6 +178,8 @@ export default function SettingsPage() {
     },
   });
 
+  console.log(user);
+
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="text-xl font-bold mb-4">Cài đặt</h1>
@@ -255,82 +259,102 @@ export default function SettingsPage() {
               </Button>
             )}
           </div>
+
+          {isGoogleAccount && (
+            <div className="bg-card border rounded-xl p-5 space-y-2">
+              <h3 className="font-semibold">Tài khoản Google</h3>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Chrome size={16} className="text-blue-500" />
+                <span>Tài khoản này được liên kết với Google OAuth</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Bạn đăng nhập bằng Google — không có mật khẩu riêng cho tài
+                khoản này.
+              </p>
+            </div>
+          )}
         </TabsContent>
 
         {/* ─── Security ────────────────────────────── */}
         <TabsContent value="security">
-          <div className="bg-card border rounded-xl p-5 space-y-4">
-            <h3 className="font-semibold">Đổi mật khẩu</h3>
-            <form
-              onSubmit={handleSubmit((d) => changePwMutation.mutate(d))}
-              className="space-y-3"
-            >
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Mật khẩu hiện tại</label>
-                <PasswordInput
-                  show={showCurrent}
-                  onToggle={() => setShowCurrent((v) => !v)}
-                  {...register("currentPassword")}
-                />
-                {errors.currentPassword && (
-                  <p className="text-xs text-destructive">
-                    {errors.currentPassword.message}
-                  </p>
-                )}
-              </div>
+          {isGoogleAccount ? (
+            <div className="bg-card border rounded-xl p-6 text-center space-y-3">
+              <Chrome size={36} className="mx-auto text-blue-500" />
+              <h3 className="font-semibold">Đăng nhập bằng Google</h3>
+              <p className="text-sm text-muted-foreground">
+                Tài khoản này sử dụng Google để xác thực.
+                <br />
+                Bạn không cần mật khẩu — quản lý bảo mật qua tài khoản Google
+                của bạn.
+              </p>
+              <a
+                href="https://myaccount.google.com/security"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Chrome size={14} /> Cài đặt bảo mật Google
+                </Button>
+              </a>
+            </div>
+          ) : (
+            <div className="bg-card border rounded-xl p-5 space-y-4">
+              <h3 className="font-semibold">Đổi mật khẩu</h3>
+              <form
+                onSubmit={handleSubmit((d) => changePwMutation.mutate(d))}
+                className="space-y-3"
+              >
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">
+                    Mật khẩu hiện tại
+                  </label>
+                  <PasswordInput
+                    show={showCurrent}
+                    onToggle={() => setShowCurrent((v) => !v)}
+                    {...register("currentPassword")}
+                  />
+                  {errors.currentPassword && (
+                    <p className="text-xs text-destructive">
+                      {errors.currentPassword.message}
+                    </p>
+                  )}
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Mật khẩu mới</label>
-                <PasswordInput
-                  show={showNew}
-                  onToggle={() => setShowNew((v) => !v)}
-                  {...register("newPassword")}
-                />
-                {newPw && pwStrength && (
-                  <PasswordStrengthBar password={newPw} />
-                  // <div className="space-y-0.5">
-                  //   <div className="h-1 rounded-full bg-muted overflow-hidden">
-                  //     <div
-                  //       className={`h-full rounded-full ${PASSWORD_STRENGTH_COLOR[pwStrength]} transition-all`}
-                  //       style={{
-                  //         width:
-                  //           pwStrength === "weak"
-                  //             ? "33%"
-                  //             : pwStrength === "medium"
-                  //               ? "66%"
-                  //               : "100%",
-                  //       }}
-                  //     />
-                  //   </div>
-                  //   <p className="text-xs text-muted-foreground">
-                  //     {PASSWORD_STRENGTH_LABEL[pwStrength]}
-                  //   </p>
-                  // </div>
-                )}
-                {errors.newPassword && (
-                  <p className="text-xs text-destructive">
-                    Mật khẩu cần ít nhất 8 ký tự, 1 chữ hoa, 1 số
-                  </p>
-                )}
-              </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">Mật khẩu mới</label>
+                  <PasswordInput
+                    show={showNew}
+                    onToggle={() => setShowNew((v) => !v)}
+                    {...register("newPassword")}
+                  />
+                  {newPw && pwStrength && (
+                    <PasswordStrengthBar password={newPw} />
+                  )}
+                  {errors.newPassword && (
+                    <p className="text-xs text-destructive">
+                      Mật khẩu cần ít nhất 8 ký tự, 1 chữ hoa, 1 số
+                    </p>
+                  )}
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-sm font-medium">
-                  Xác nhận mật khẩu mới
-                </label>
-                <Input type="password" {...register("confirmPassword")} />
-                {errors.confirmPassword && (
-                  <p className="text-xs text-destructive">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
-              </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">
+                    Xác nhận mật khẩu mới
+                  </label>
+                  <Input type="password" {...register("confirmPassword")} />
+                  {errors.confirmPassword && (
+                    <p className="text-xs text-destructive">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
 
-              <Button type="submit" disabled={changePwMutation.isPending}>
-                {changePwMutation.isPending ? "Đang đổi..." : "Đổi mật khẩu"}
-              </Button>
-            </form>
-          </div>
+                <Button type="submit" disabled={changePwMutation.isPending}>
+                  {changePwMutation.isPending ? "Đang đổi..." : "Đổi mật khẩu"}
+                </Button>
+              </form>
+            </div>
+          )}
         </TabsContent>
 
         {/* ─── Danger ──────────────────────────────── */}

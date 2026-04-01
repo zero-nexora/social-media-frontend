@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { usersApi } from "../../services/api-services";
 import { BannerDefault } from "../shared/banner-default";
+import { useAuthStore } from "../../stores/auth-store";
 
 interface Props {
   coverPhoto: string | null;
@@ -13,11 +14,13 @@ interface Props {
 
 export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
   const queryClient = useQueryClient();
+  const { updateUser } = useAuthStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const cover = useMutation({
     mutationFn: (file: File) => usersApi.updateCover(file),
-    onSuccess: () => {
+    onSuccess: ({ coverUrl }) => {
+      updateUser({ coverPhoto: coverUrl });
       queryClient.invalidateQueries({ queryKey: ["profile", username] });
       toast.success("Đã cập nhật ảnh bìa");
     },

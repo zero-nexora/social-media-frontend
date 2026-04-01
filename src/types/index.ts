@@ -25,6 +25,7 @@ export interface User {
   id: string;
   username: string;
   email: string;
+  googleId: string | null;
   avatar: string | null;
   coverPhoto: string | null;
   bio: string | null;
@@ -228,4 +229,9 @@ export interface SocketStoryViewedPayload {
   storyId: string;
   viewer: UserBasic;
   viewsCount: number;
+}
+
+export interface SocketStoryDeletedPayload {
+  storyId: string;
+  userId: string;
 }

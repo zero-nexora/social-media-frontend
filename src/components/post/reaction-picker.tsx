@@ -32,10 +32,10 @@ export const ReactionPicker = ({ onSelect }: Props) => {
               "absolute -top-8 left-1/2 -translate-x-1/2 pointer-events-none",
               "bg-popover border text-foreground text-[10px] font-medium",
               "px-1.5 py-0.5 rounded-md whitespace-nowrap shadow-md",
-              "transition-all duration-150",
+              "transition-all duration-200 ease-out",
               hovered === type
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-1",
+                ? "opacity-100 -translate-y-1"
+                : "opacity-0 translate-y-0",
             )}
           >
             {REACTION_LABEL[type]}
@@ -43,9 +43,13 @@ export const ReactionPicker = ({ onSelect }: Props) => {
 
           <button
             onClick={() => onSelect(type)}
+            onMouseDown={(e) => e.preventDefault()}
             className={cn(
-              "text-2xl leading-none p-0.5 transition-transform duration-150 origin-bottom",
-              hovered === type ? "scale-150 -translate-y-1" : "scale-100",
+              "text-2xl leading-none p-0.5 origin-bottom select-none",
+              "transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+              hovered === type
+                ? "scale-[1.6] -translate-y-2"
+                : "scale-100 translate-y-0",
             )}
           >
             {REACTION_EMOJI[type]}

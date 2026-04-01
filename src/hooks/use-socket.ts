@@ -68,7 +68,13 @@ export const useSocket = () => {
     const onNewNotification = (notif: Notification) => {
       addNotification(notif);
       incrementUnread();
-      if (location.pathname !== "/notifications" && notif.type !== "NEW_POST") {
+      // if (location.pathname !== "/notifications" && notif.type !== "NEW_POST") {
+      //   toast(notif.fromUser.username, {
+      //     description: getNotifDesc(notif.type, notif.fromUser.username),
+      //   });
+      // }
+
+      if (location.pathname !== "/notifications") {
         toast(notif.fromUser.username, {
           description: getNotifDesc(notif.type, notif.fromUser.username),
         });

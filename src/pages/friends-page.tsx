@@ -93,15 +93,6 @@ export default function FriendsPage() {
 
   const unfriendMutation = useMutation({
     mutationFn: (userId: string) => friendshipsApi.unfriend(userId),
-    // onSuccess: () => {
-    //   queryClient.invalidateQueries({ queryKey: ["friends"] });
-    //   queryClient.invalidateQueries({ queryKey: ["profile"] });
-    //   queryClient.invalidateQueries({ queryKey: ["feed"] });
-    //   queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
-    //   queryClient.invalidateQueries({
-    //     queryKey: ["friend-suggestions-sidebar"],
-    //   });
-    // },
     onError: () => queryClient.invalidateQueries({ queryKey: ["friends"] }),
   });
 

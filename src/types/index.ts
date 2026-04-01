@@ -9,7 +9,8 @@ export type NotifType =
   | "POST_REACT"
   | "POST_COMMENT"
   | "COMMENT_REPLY"
-  | "NEW_FOLLOWER";
+  | "NEW_FOLLOWER"
+  | "NEW_POST";
 
 export type FriendshipStatus =
   | "none"
@@ -153,6 +154,7 @@ export interface Story {
   isExpired?: boolean;
   isViewed?: boolean;
   _count?: { views: number };
+  viewsCount: number;
 }
 
 export interface StoryGroup {
@@ -214,4 +216,16 @@ export interface SocketFriendRequestCancelledPayload {
 export interface SocketFriendUnfriendedPayload {
   userId: string;
   targetId: string;
+}
+
+export interface SocketStoryNewPayload {
+  storyId: string;
+  expiresAt: string;
+  user: UserBasic;
+}
+
+export interface SocketStoryViewedPayload {
+  storyId: string;
+  viewer: UserBasic;
+  viewsCount: number;
 }

@@ -76,6 +76,7 @@ export const getNotifText = (type: NotifType, fromUsername: string): string => {
     POST_COMMENT: `${fromUsername} đã bình luận bài viết của bạn`,
     COMMENT_REPLY: `${fromUsername} đã trả lời bình luận của bạn`,
     NEW_FOLLOWER: `${fromUsername} đã theo dõi bạn`,
+    NEW_POST: `${fromUsername} vừa đăng bài viết mới`,
   };
   return map[type];
 };
@@ -87,6 +88,7 @@ export const NOTIF_ICON: Record<NotifType, string> = {
   POST_COMMENT: "message-circle",
   COMMENT_REPLY: "message-square",
   NEW_FOLLOWER: "user-plus",
+  NEW_POST: "plus-circle",
 };
 
 export const truncate = (str: string, n: number): string =>

@@ -79,7 +79,6 @@ export const FriendshipButton = ({
       toast.success("Đã chấp nhận lời mời");
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["friends", profile.id] });
     },
     onError: () => toast.error("Thao tác thất bại"),
@@ -111,7 +110,6 @@ export const FriendshipButton = ({
     onSuccess: () => {
       onStatusChange();
       toast.info("Đã chặn người dùng");
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["friends", profile.id] });
     },
@@ -123,7 +121,6 @@ export const FriendshipButton = ({
     onSuccess: () => {
       onStatusChange();
       toast.info("Đã huỷ chặn người dùng");
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["friends", profile.id] });
     },

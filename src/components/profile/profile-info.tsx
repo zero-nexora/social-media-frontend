@@ -12,6 +12,7 @@ import { OnlineBadge } from "../shared/online-badge";
 import { cn } from "../../lib/utils";
 import type { User, FriendshipStatus } from "../../types";
 import { AvatarDefault } from "../shared/avatar-default";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   profile: User;
@@ -38,6 +39,7 @@ export const ProfileInfo = ({
   onRefresh,
 }: Props) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [editUsername, setEditUsername] = useState(profile.username);
@@ -64,7 +66,16 @@ export const ProfileInfo = ({
       }),
     onSuccess: () => {
       setEditOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      const usernameChanged = editUsername !== profile.username;
+      if (usernameChanged) {
+        navigate(`/profile/${editUsername}`, { replace: true });
+      }
+      queryClient.invalidateQueries({
+        queryKey: [
+          "profile",
+          usernameChanged ? editUsername : profile.username,
+        ],
+      });
       toast.success("Đã cập nhật thông tin");
       onRefresh();
     },
@@ -198,7 +209,7 @@ export const ProfileInfo = ({
           <SheetHeader>
             <SheetTitle>Chỉnh sửa trang cá nhân</SheetTitle>
           </SheetHeader>
-          <div className="space-y-4 mt-6">
+          <div className="space-y-4 p-4">
             <div className="space-y-1.5">
               <label className="text-sm font-medium">Username</label>
               <Input

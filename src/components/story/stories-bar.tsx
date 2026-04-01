@@ -31,7 +31,7 @@ export const StoriesBar = () => {
 
   return (
     <>
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex gap-3 overflow-x-auto scrollbar-none p-1">
         {user && (
           <button
             onClick={() => setAddOpen(true)}
@@ -69,7 +69,7 @@ export const StoriesBar = () => {
 
       {storyGroups.length > 0 && (
         <StoryViewer
-          key={`${open}-${viewerStartIndex}`}
+          key={`${viewerOpen}-${viewerStartIndex}`}
           open={viewerOpen}
           onClose={() => setViewerOpen(false)}
           groups={storyGroups}

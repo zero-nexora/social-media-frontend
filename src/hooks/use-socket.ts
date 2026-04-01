@@ -12,6 +12,8 @@ import type {
   SocketFriendAcceptedPayload,
   SocketFriendRequestCancelledPayload,
   SocketFriendUnfriendedPayload,
+  SocketStoryNewPayload,
+  SocketStoryViewedPayload,
 } from "../types";
 
 export const useSocket = () => {
@@ -75,9 +77,6 @@ export const useSocket = () => {
     // ── Friend events ─────────────────────────────────────
     const onFriendRequest = (payload: SocketFriendRequestPayload) => {
       incrementFriendRequest();
-      // if (location.pathname !== "/friends") {
-      //   toast.info(`${payload.sender.username} đã gửi lời mời kết bạn`);
-      // }
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
       queryClient.invalidateQueries({
@@ -89,16 +88,12 @@ export const useSocket = () => {
     };
 
     const onFriendAccepted = (payload: SocketFriendAcceptedPayload) => {
-      // toast.success(
-      //   `${payload.accepter.username} đã chấp nhận lời mời kết bạn`,
-      // );
       queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
       queryClient.invalidateQueries({
         queryKey: ["profile", payload.accepter.username],
       });
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
       queryClient.invalidateQueries({
         queryKey: ["friends", payload.accepter.id],
@@ -120,8 +115,18 @@ export const useSocket = () => {
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
 
       queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
+    };
 
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    const onStoryNew = (payload: SocketStoryNewPayload) => {
+      queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
+      toast(`${payload.user.username} vừa đăng một story mới`);
+    };
+
+    const onStoryViewed = (payload: SocketStoryViewedPayload) => {
+      queryClient.invalidateQueries({ queryKey: ["my-stories"] });
+      queryClient.invalidateQueries({
+        queryKey: ["story-viewers", payload.storyId],
+      });
     };
 
     // ── Presence — another user came online ───────────────
@@ -135,6 +140,8 @@ export const useSocket = () => {
     };
 
     socket.on("new_notification", onNewNotification);
+    socket.on("story:new", onStoryNew);
+    socket.on("story:viewed", onStoryViewed);
     socket.on("friend_request", onFriendRequest);
     socket.on("friend_request_cancelled", onFriendRequestCancelled);
     socket.on("friend_unfriended", onFriendUnfriended);
@@ -144,6 +151,8 @@ export const useSocket = () => {
 
     return () => {
       socket.off("new_notification", onNewNotification);
+      socket.off("story:new", onStoryNew);
+      socket.off("story:viewed", onStoryViewed);
       socket.off("friend_request", onFriendRequest);
       socket.off("friend_request_cancelled", onFriendRequestCancelled);
       socket.off("friend_accepted", onFriendAccepted);
@@ -163,6 +172,7 @@ const getNotifDesc = (type: string, username: string): string => {
     POST_COMMENT: `${username} đã bình luận bài viết của bạn`,
     COMMENT_REPLY: `${username} đã trả lời bình luận của bạn`,
     NEW_FOLLOWER: `${username} đã theo dõi bạn`,
+    NEW_POST: `${username} vừa đăng bài viết mới`,
   };
   return map[type] ?? "Có hoạt động mới";
 };

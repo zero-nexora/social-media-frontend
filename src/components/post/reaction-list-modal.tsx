@@ -4,7 +4,10 @@ import { Link } from "react-router-dom";
 import { reactionsApi } from "../../services/api-services";
 import { REACTION_EMOJI, REACTION_LABEL } from "../../lib/utils";
 import type { ReactionType, ReactionSummary, Reaction } from "../../types";
-import { UserCardSkeleton } from "../shared/skeleton-card";
+import {
+  ReactionListSkeleton,
+  UserCardSkeleton,
+} from "../shared/skeleton-card";
 import { AvatarDefault } from "../shared/avatar-default";
 import { useInfiniteScroll } from "../../hooks/use-infinite-scroll";
 import {
@@ -66,19 +69,7 @@ const ReactionList = ({ postId, type }: ListProps) => {
   const items = data?.pages.flatMap((p) => p.data) ?? [];
 
   if (isLoading) {
-    return (
-      <div className="space-y-3 p-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 animate-pulse">
-            <div className="w-9 h-9 rounded-full bg-muted" />
-            <div className="flex-1 space-y-1.5">
-              <div className="h-3 bg-muted rounded w-24" />
-              <div className="h-2.5 bg-muted rounded w-16" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+    return <ReactionListSkeleton />;
   }
 
   if (items.length === 0) {

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { InfiniteData } from "@tanstack/react-query";
 import { reactionsApi } from "../../services/api-services";
 import { ReactionPicker } from "./reaction-picker";
+import { ReactionSummaryBar } from "./reaction-summary-bar";
 import {
   REACTION_EMOJI,
   REACTION_LABEL,
@@ -121,6 +122,10 @@ export const PostCardReactionBar = ({
         data.post?.likesCount ?? post.likesCount,
         data.reaction?.type ?? null,
       );
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-summary", post.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["reactions", post.id] });
     },
     onError: (_err, _type, context) => {
       if (context)
@@ -155,7 +160,6 @@ export const PostCardReactionBar = ({
 
   const handleShareClick = async () => {
     const url = `${window.location.origin}/posts/${post.id}`;
-
     try {
       await navigator.clipboard.writeText(url);
       toast.success("Đã copy link bài viết!");
@@ -169,14 +173,12 @@ export const PostCardReactionBar = ({
     <div className="space-y-1">
       {(post.likesCount > 0 || post.commentsCount > 0) && (
         <div className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
-          <div className="flex items-center gap-1">
-            {myReaction && (
-              <span className="text-sm">{REACTION_EMOJI[myReaction]}</span>
-            )}
-            {post.likesCount > 0 && <span>{post.likesCount} lượt cảm xúc</span>}
-          </div>
+          <ReactionSummaryBar postId={post.id} />
           {post.commentsCount > 0 && (
-            <button onClick={handleCommentClick} className="hover:underline">
+            <button
+              onClick={handleCommentClick}
+              className="hover:underline ml-auto"
+            >
               {post.commentsCount} bình luận
             </button>
           )}

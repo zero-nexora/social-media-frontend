@@ -117,6 +117,9 @@ export default function PostDetailPage() {
     if (!socket || !id) return;
 
     const onReaction = (p: PostReactionPayload) => {
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-summary", p.postId],
+      });
       if (p.userId === me?.id) return;
       patchPost({ likesCount: p.likesCount });
     };
@@ -215,6 +218,7 @@ export default function PostDetailPage() {
       socket.off("post:comment_updated", onCommentUpdated);
       socket.off("post:comment_deleted", onCommentDeleted);
       socket.off("post:comments_count", onCommentsCount);
+      socket.off("post:reaction", onReaction);
     };
   }, [socket, id, post?.commentsCount, me?.id]); // eslint-disable-line
 

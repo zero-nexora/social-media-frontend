@@ -5,7 +5,7 @@ import { reactionsApi } from "../../services/api-services";
 import { REACTION_EMOJI, REACTION_LABEL } from "../../lib/utils";
 import type { ReactionType, ReactionSummary, Reaction } from "../../types";
 import {
-  ReactionListSkeleton,
+  UserListItemSkeleton,
   UserCardSkeleton,
 } from "../shared/skeleton-card";
 import { AvatarDefault } from "../shared/avatar-default";
@@ -69,7 +69,7 @@ const ReactionList = ({ postId, type }: ListProps) => {
   const items = data?.pages.flatMap((p) => p.data) ?? [];
 
   if (isLoading) {
-    return <ReactionListSkeleton />;
+    return <UserListItemSkeleton />;
   }
 
   if (items.length === 0) {

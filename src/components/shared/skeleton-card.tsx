@@ -57,9 +57,9 @@ export const BlockSkeleton = ({ className }: Props) => (
   <Shimmer className={cn("h-20 w-full rounded-lg", className)} />
 );
 
-export const ReactionListSkeleton = () => (
+export const UserListItemSkeleton = ({ count = 5 }: { count?: number }) => (
   <div className="space-y-3 p-4">
-    {Array.from({ length: 5 }).map((_, i) => (
+    {Array.from({ length: count }).map((_, i) => (
       <div key={i} className="flex items-center gap-3">
         <Shimmer className="w-9 h-9 rounded-full" />
         <div className="flex-1 space-y-1.5">

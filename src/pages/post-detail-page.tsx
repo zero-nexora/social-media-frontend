@@ -120,6 +120,7 @@ export default function PostDetailPage() {
       queryClient.invalidateQueries({
         queryKey: ["reaction-summary", p.postId],
       });
+      queryClient.invalidateQueries({ queryKey: ["reactions", p.postId] });
       if (p.userId === me?.id) return;
       patchPost({ likesCount: p.likesCount });
     };

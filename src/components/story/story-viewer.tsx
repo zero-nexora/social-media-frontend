@@ -7,7 +7,7 @@ import { UserAvatar } from "../shared/user-avatar";
 import { StoryProgress } from "./story-progress";
 import { fromNow } from "../../lib/utils";
 import type { StoryGroup } from "../../types";
-import { StoryViewersSheet } from "./story-viewers-sheet";
+import { StoryViewersDialog } from "./story-viewers-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -257,7 +257,7 @@ export const StoryViewer = ({
       </div>
 
       {isOwn && currentStory && (
-        <StoryViewersSheet
+        <StoryViewersDialog
           storyId={currentStory.id}
           open={viewersOpen}
           onClose={() => {
@@ -279,7 +279,10 @@ export const StoryViewer = ({
             <AlertDialogCancel>Huỷ</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={() => deleteMutation.mutate()}
+              onClick={() => {
+                onClose();
+                deleteMutation.mutate();
+              }}
               disabled={deleteMutation.isPending}
             >
               Xoá

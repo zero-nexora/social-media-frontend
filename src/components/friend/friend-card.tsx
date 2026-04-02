@@ -41,6 +41,7 @@ export const FriendRequestCard = ({
       setHandled(true);
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
     },

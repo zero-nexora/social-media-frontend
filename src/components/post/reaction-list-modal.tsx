@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { reactionsApi } from "../../services/api-services";
 import { REACTION_EMOJI, REACTION_LABEL } from "../../lib/utils";
@@ -8,6 +7,18 @@ import type { ReactionType, ReactionSummary, Reaction } from "../../types";
 import { UserCardSkeleton } from "../shared/skeleton-card";
 import { AvatarDefault } from "../shared/avatar-default";
 import { useInfiniteScroll } from "../../hooks/use-infinite-scroll";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "../../components/ui/tabs";
 
 const ALL_TYPES: ReactionType[] = [
   "LIKE",
@@ -25,25 +36,6 @@ interface Props {
   summary: ReactionSummary;
   defaultTab: ReactionType | "ALL";
 }
-
-interface TabProps {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}
-
-const Tab = ({ label, active, onClick }: TabProps) => (
-  <button
-    onClick={onClick}
-    className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-      active
-        ? "border-primary text-primary"
-        : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-    }`}
-  >
-    {label}
-  </button>
-);
 
 interface ListProps {
   postId: string;
@@ -98,14 +90,14 @@ const ReactionList = ({ postId, type }: ListProps) => {
   }
 
   return (
-    <div className="overflow-y-auto max-h-100 p-2">
+    <div className="overflow-y-auto max-h-80 p-2">
       {items.map((reaction: Reaction) => (
         <Link
           key={reaction.id}
           to={`/profile/${reaction.user?.username}`}
           className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
         >
-          <div className="relative shrink">
+          <div className="relative shrink-0">
             {reaction.user?.avatar ? (
               <img
                 src={reaction.user.avatar}
@@ -129,9 +121,7 @@ const ReactionList = ({ postId, type }: ListProps) => {
           </div>
         </Link>
       ))}
-
       <div ref={sentinelRef} />
-
       {isFetchingNextPage && <UserCardSkeleton />}
     </div>
   );
@@ -146,51 +136,49 @@ export const ReactionListModal = ({
 }: Props) => {
   const [activeTab, setActiveTab] = useState<ReactionType | "ALL">(defaultTab);
 
-  if (!open) return null;
-
   const activeTabs = ALL_TYPES.filter((t) => summary.byType[t] > 0);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div className="absolute inset-0 bg-black/50" />
-      <div
-        className="relative bg-card border rounded-xl shadow-xl w-full max-w-sm overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <h3 className="font-semibold text-sm">Cảm xúc</h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-          >
-            <X size={16} />
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-sm p-0 overflow-hidden">
+        <DialogHeader className="px-4 pt-4 pb-2">
+          <DialogTitle className="text-sm">Cảm xúc</DialogTitle>
+        </DialogHeader>
 
-        <div className="flex items-center px-2 border-b overflow-x-auto scrollbar-none">
-          <Tab
-            label={`Tất cả ${summary.total}`}
-            active={activeTab === "ALL"}
-            onClick={() => setActiveTab("ALL")}
-          />
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as ReactionType | "ALL")}
+        >
+          <div className="border-b overflow-x-auto scrollbar-none">
+            <TabsList className="h-auto bg-transparent rounded-none px-2 gap-0 w-max">
+              <TabsTrigger
+                value="ALL"
+                className="px-3 py-2 text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none bg-transparent"
+              >
+                Tất cả {summary.total}
+              </TabsTrigger>
+              {activeTabs.map((type) => (
+                <TabsTrigger
+                  key={type}
+                  value={type}
+                  className="px-3 py-2 text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none bg-transparent"
+                >
+                  {REACTION_EMOJI[type]} {summary.byType[type]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          <TabsContent value="ALL" className="mt-0">
+            <ReactionList postId={postId} />
+          </TabsContent>
           {activeTabs.map((type) => (
-            <Tab
-              key={type}
-              label={`${REACTION_EMOJI[type]} ${summary.byType[type]}`}
-              active={activeTab === type}
-              onClick={() => setActiveTab(type)}
-            />
+            <TabsContent key={type} value={type} className="mt-0">
+              <ReactionList postId={postId} type={type} />
+            </TabsContent>
           ))}
-        </div>
-
-        <ReactionList
-          postId={postId}
-          type={activeTab === "ALL" ? undefined : activeTab}
-        />
-      </div>
-    </div>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 };

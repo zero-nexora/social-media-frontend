@@ -57,6 +57,7 @@ export const PostCardHeader = ({ post, onDelete, onEdit, onHide }: Props) => {
     mutationFn: () => postsApi.delete(post.id),
     onSuccess: () => {
       toast.success("Đã xoá bài viết");
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["user-posts", post.userId] });
       onDelete?.();
     },

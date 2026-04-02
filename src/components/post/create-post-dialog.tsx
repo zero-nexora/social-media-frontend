@@ -121,6 +121,7 @@ export const CreatePostDialog = ({
           ],
         };
       });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
       onSuccess?.();
       handleClose();
     },

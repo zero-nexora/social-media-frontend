@@ -3,7 +3,8 @@ import { Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { storiesApi } from "../../services/api-services";
 import { UserAvatar } from "../shared/user-avatar";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { ReactionListSkeleton } from "../shared/skeleton-card";
 import { fromNow } from "../../lib/utils";
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
   onClose: () => void;
 }
 
-export const StoryViewersSheet = ({ storyId, open, onClose }: Props) => {
+export const StoryViewersDialog = ({ storyId, open, onClose }: Props) => {
   const { data, isLoading } = useQuery({
     queryKey: ["story-viewers", storyId],
     queryFn: () => storiesApi.getViewers(storyId),
@@ -21,14 +22,10 @@ export const StoryViewersSheet = ({ storyId, open, onClose }: Props) => {
   });
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent
-        side="bottom"
-        className="h-[60vh] rounded-t-2xl px-0"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <SheetHeader className="px-4 pb-2 border-b">
-          <SheetTitle className="flex items-center gap-2 text-base">
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-sm p-0 overflow-hidden">
+        <DialogHeader className="px-4 pt-4 pb-2 border-b">
+          <DialogTitle className="flex items-center gap-2 text-base">
             <Eye size={16} />
             Lượt xem
             {data && (
@@ -36,23 +33,11 @@ export const StoryViewersSheet = ({ storyId, open, onClose }: Props) => {
                 ({data.totalViews})
               </span>
             )}
-          </SheetTitle>
-        </SheetHeader>
+          </DialogTitle>
+        </DialogHeader>
 
-        <div className="overflow-y-auto h-full py-2">
-          {isLoading && (
-            <div className="space-y-3 px-4 pt-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3 animate-pulse">
-                  <div className="w-10 h-10 rounded-full bg-muted" />
-                  <div className="flex-1 space-y-1.5">
-                    <div className="h-3 w-28 bg-muted rounded" />
-                    <div className="h-2.5 w-16 bg-muted rounded" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+        <div className="overflow-y-auto max-h-80 py-2">
+          {isLoading && <ReactionListSkeleton />}
 
           {!isLoading && data?.viewers.length === 0 && (
             <div className="flex flex-col items-center justify-center h-40 gap-2 text-muted-foreground">
@@ -71,14 +56,12 @@ export const StoryViewersSheet = ({ storyId, open, onClose }: Props) => {
               <UserAvatar user={user} size="md" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{user.username}</p>
-                <p className="text-xs text-muted-foreground">
-                  {fromNow(viewedAt)}
-                </p>
+                <p className="text-xs text-muted-foreground">{fromNow(viewedAt)}</p>
               </div>
             </Link>
           ))}
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -95,6 +95,7 @@ export const useSocket = () => {
       queryClient.invalidateQueries({
         queryKey: ["profile", payload.accepter.username],
       });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
       queryClient.invalidateQueries({
         queryKey: ["friends", payload.accepter.id],
@@ -114,7 +115,7 @@ export const useSocket = () => {
     const onFriendUnfriended = (_payload: SocketFriendUnfriendedPayload) => {
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
-
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
     };
 

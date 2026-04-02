@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";

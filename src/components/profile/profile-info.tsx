@@ -14,6 +14,7 @@ import type { User, FriendshipStatus } from "../../types";
 import { AvatarDefault } from "../shared/avatar-default";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/auth-store";
+import { ImageLightbox } from "../shared/image-lightbox";
 
 interface Props {
   profile: User;
@@ -46,6 +47,7 @@ export const ProfileInfo = ({
   const [editOpen, setEditOpen] = useState(false);
   const [editUsername, setEditUsername] = useState(profile.username);
   const [editBio, setEditBio] = useState(profile.bio ?? "");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   usePresence(isOwn ? [] : [profile.id]);
 
@@ -105,8 +107,7 @@ export const ProfileInfo = ({
       onRefresh();
       if (isFollowing) {
         queryClient.invalidateQueries({ queryKey: ["following", profile.id] });
-      }
-      else {
+      } else {
         queryClient.invalidateQueries({ queryKey: ["followers", profile.id] });
       }
       toast.info(isFollowing ? "Đã bỏ theo dõi" : "Đã theo dõi");
@@ -130,6 +131,7 @@ export const ProfileInfo = ({
                 "rounded-full border-4 border-background overflow-hidden",
                 "w-24 h-24 sm:w-28 sm:h-28",
               )}
+              onClick={() => setLightboxOpen(true)}
             >
               {profile.avatar ? (
                 <img
@@ -153,7 +155,10 @@ export const ProfileInfo = ({
             {isOwn && (
               <>
                 <button
-                  onClick={() => avatarInputRef.current?.click()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    avatarInputRef.current?.click();
+                  }}
                   disabled={avatar.isPending}
                   className="absolute bottom-0 right-0 w-7 h-7 bg-muted border-2 border-background rounded-full flex items-center justify-center hover:bg-muted/70 transition-colors disabled:opacity-60 z-10"
                 >
@@ -175,7 +180,14 @@ export const ProfileInfo = ({
           {/* Actions */}
           <div className="flex items-center gap-2 pb-1">
             {isOwn ? (
-              <Button size="sm" variant="outline" onClick={openEdit}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openEdit();
+                }}
+              >
                 Chỉnh sửa trang cá nhân
               </Button>
             ) : (
@@ -188,7 +200,10 @@ export const ProfileInfo = ({
                 <Button
                   size="sm"
                   variant={isFollowing ? "secondary" : "outline"}
-                  onClick={() => follow.mutate()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    follow.mutate();
+                  }}
                   disabled={follow.isPending}
                 >
                   {isFollowing ? "Đang theo dõi" : "Theo dõi"}
@@ -213,6 +228,18 @@ export const ProfileInfo = ({
           </div>
         </div>
       </div>
+
+      <ImageLightbox
+        key={`${lightboxOpen}`}
+        images={
+          profile.avatar
+            ? [profile.avatar]
+            : ["/assets/vire-avatar-default.svg"]
+        }
+        initialIndex={0}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
 
       {/* Edit sheet */}
       <Sheet open={editOpen} onOpenChange={setEditOpen}>

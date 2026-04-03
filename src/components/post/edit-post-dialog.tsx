@@ -14,6 +14,8 @@ import {
 import { PostEditor } from "./post-editor";
 import { postsApi } from "../../services/api-services";
 import type { Post, Privacy } from "../../types";
+import { cn, isVideo } from "../../lib/utils";
+import { VideoPlayer } from "../shared/video-player";
 
 const PRIVACY_OPTIONS: {
   value: Privacy;
@@ -130,14 +132,28 @@ export const EditPostDialog = ({ post, open, onClose }: Props) => {
 
           {post.mediaUrls.length > 0 && (
             <div className="rounded-xl overflow-hidden bg-muted border">
-              <div className="grid grid-cols-2 gap-px max-h-36">
-                {post.mediaUrls.slice(0, 4).map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt=""
-                    className="w-full h-18 object-cover"
-                  />
+              <div
+                className={cn(
+                  "grid gap-1.5",
+                  post.mediaUrls.length === 1 ? "grid-cols-1" : "grid-cols-2",
+                )}
+              >
+                {post.mediaUrls.map((url, i) => (
+                  <div
+                    key={url}
+                    className="overflow-hidden bg-muted"
+                  >
+                    {isVideo(url) ? (
+                      <VideoPlayer src={url} />
+                    ) : (
+                      <img
+                        key={i}
+                        src={url}
+                        alt=""
+                        className="w-full h-18 object-cover"
+                      />
+                    )}
+                  </div>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground text-center py-2">

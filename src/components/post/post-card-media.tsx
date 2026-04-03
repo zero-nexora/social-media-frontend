@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cn } from "../../lib/utils";
+import { cn, isVideo } from "../../lib/utils";
 import { ImageLightbox } from "../shared/image-lightbox";
 import { VideoPlayer } from "../shared/video-player";
 
@@ -15,10 +15,6 @@ function getLayout(count: number): GridLayout {
   if (count === 2) return "two";
   if (count === 3) return "three";
   return "four-plus";
-}
-
-function isVideo(url: string): boolean {
-  return url.includes("/video/upload/");
 }
 
 export const PostCardMedia = ({ urls, className }: Props) => {

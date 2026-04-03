@@ -26,6 +26,10 @@ export const isExpired = (expiresAt: string): boolean =>
 
 export const getNameShort = (name: string) => name.slice(0, 2).toUpperCase();
 
+export const isVideo = (url: string): boolean => {
+  return url.includes("/video/upload/");
+};
+
 // ─── Privacy helpers ──────────────────────────────────────
 export const PRIVACY_LABEL: Record<Privacy, string> = {
   PUBLIC: "Công khai",
@@ -143,7 +147,11 @@ export const getNotifTarget = (notif: {
   friendshipId: string | null;
   fromUser: { username: string };
 }): string => {
-  if (notif.type === "POST_REACT" || notif.type === "POST_COMMENT" || notif.type === "NEW_POST") {
+  if (
+    notif.type === "POST_REACT" ||
+    notif.type === "POST_COMMENT" ||
+    notif.type === "NEW_POST"
+  ) {
     return getPostUrl(notif.postId ?? "");
   }
   if (notif.type === "COMMENT_REPLY") {

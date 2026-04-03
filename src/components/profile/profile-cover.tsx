@@ -1,10 +1,11 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { usersApi } from "../../services/api-services";
 import { BannerDefault } from "../shared/banner-default";
 import { useAuthStore } from "../../stores/auth-store";
+import { ImageLightbox } from "../shared/image-lightbox";
 
 interface Props {
   coverPhoto: string | null;
@@ -16,6 +17,7 @@ export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
   const queryClient = useQueryClient();
   const { updateUser } = useAuthStore();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const cover = useMutation({
     mutationFn: (file: File) => usersApi.updateCover(file),
@@ -28,38 +30,54 @@ export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
   });
 
   return (
-    <div className="relative h-48 sm:h-56 rounded-xl overflow-hidden bg-muted">
-      {coverPhoto ? (
-        <img
-          src={coverPhoto}
-          alt="cover"
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <BannerDefault />
-      )}
-
-      {isOwn && (
-        <>
-          <button
-            onClick={() => inputRef.current?.click()}
-            disabled={cover.isPending}
-            className="absolute top-3 right-3 flex items-center gap-1.5 bg-foreground/50 hover:bg-foreground/70 disabled:opacity-60 text-background text-xs px-3 py-1.5 rounded-full transition-colors backdrop-blur-sm"
-          >
-            <Camera size={13} />
-            {cover.isPending ? "Đang tải..." : "Cập nhật ảnh bìa"}
-          </button>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) =>
-              e.target.files?.[0] && cover.mutate(e.target.files[0])
-            }
+    <>
+      <div
+        className="relative h-48 sm:h-56 rounded-xl overflow-hidden bg-muted"
+        onClick={() => setLightboxOpen(true)}
+      >
+        {coverPhoto ? (
+          <img
+            src={coverPhoto}
+            alt="cover"
+            className="w-full h-full object-cover"
           />
-        </>
-      )}
-    </div>
+        ) : (
+          <BannerDefault />
+        )}
+
+        {isOwn && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                inputRef.current?.click();
+              }}
+              disabled={cover.isPending}
+              className="absolute top-3 right-3 flex items-center gap-1.5 bg-foreground/50 hover:bg-foreground/70 disabled:opacity-60 text-background text-xs px-3 py-1.5 rounded-full transition-colors backdrop-blur-sm"
+            >
+              <Camera size={13} />
+              {cover.isPending ? "Đang tải..." : "Cập nhật ảnh bìa"}
+            </button>
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                e.target.files?.[0] && cover.mutate(e.target.files[0])
+              }
+            />
+          </>
+        )}
+      </div>
+
+      <ImageLightbox
+        key={`${lightboxOpen}`}
+        images={coverPhoto ? [coverPhoto] : ["/assets/vire-cover-default.svg"]}
+        initialIndex={0}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
+    </>
   );
 };

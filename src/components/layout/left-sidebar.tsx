@@ -78,7 +78,7 @@ export const LeftSidebar = () => {
             <Icon size={19} strokeWidth={active ? 2.5 : 2} />
             <span className="flex-1">{label}</span>
             {count > 0 && (
-              <span className="min-w-5 h-5 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold px-1">
+              <span className="min-w-5 h-5 flex items-center justify-center rounded-full bg-primary/15 text-primary text-[10px] font-semibold px-1">
                 {count > 99 ? "99+" : count}
               </span>
             )}

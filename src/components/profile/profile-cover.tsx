@@ -53,7 +53,7 @@ export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
                 inputRef.current?.click();
               }}
               disabled={cover.isPending}
-              className="absolute top-3 right-3 flex items-center gap-1.5 bg-foreground/50 hover:bg-foreground/70 disabled:opacity-60 text-background text-xs px-3 py-1.5 rounded-full transition-colors backdrop-blur-sm"
+              className="absolute top-3 right-3 flex items-center gap-1.5 bg-foreground/50 hover:bg-foreground/70 disabled:opacity-60 text-background text-xs px-3 py-1.5 rounded-full transition-colors backdrop-blur-sm z-10"
             >
               <Camera size={13} />
               {cover.isPending ? "Đang tải..." : "Cập nhật ảnh bìa"}

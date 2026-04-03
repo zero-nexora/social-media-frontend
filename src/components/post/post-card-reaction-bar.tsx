@@ -145,7 +145,7 @@ export const PostCardReactionBar = ({
 
   const handleLikeClick = () => {
     if (showPicker) return;
-    reactionMutation.mutate("LIKE");
+    reactionMutation.mutate(myReaction ?? "LIKE");
   };
 
   const handlePickerSelect = (type: ReactionType) => {

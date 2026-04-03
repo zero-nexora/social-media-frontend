@@ -6,7 +6,7 @@ import { useAuth } from "../../hooks/use-auth";
 import { UserAvatar } from "../shared/user-avatar";
 import { StoryProgress } from "./story-progress";
 import { fromNow } from "../../lib/utils";
-import type { StoryGroup } from "../../types";
+import type { SocketStoryViewedPayload, StoryGroup } from "../../types";
 import { StoryViewersDialog } from "./story-viewers-dialog";
 import {
   AlertDialog,
@@ -18,6 +18,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import { useSocketStore } from "../../stores/socket-store";
+import { VideoPlayer } from "../shared/video-player";
 
 const STORY_DURATION = 5000;
 const TICK = 100;
@@ -37,6 +39,7 @@ export const StoryViewer = ({
 }: Props) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { socket } = useSocketStore();
 
   const [groupIdx, setGroupIdx] = useState(initialGroupIndex);
   const [storyIdx, setStoryIdx] = useState(0);
@@ -67,6 +70,25 @@ export const StoryViewer = ({
       onClose();
     }
   }, [groupIdx, storyIdx, groups, onClose]);
+
+  const onStoryViewed = (payload: SocketStoryViewedPayload) => {
+    queryClient.invalidateQueries({ queryKey: ["my-stories"] });
+    queryClient.invalidateQueries({
+      queryKey: ["story-viewers", payload.storyId],
+    });
+  };
+
+  useEffect(() => {
+    if (!open || !currentStory || !isOwn || !socket) return;
+
+    socket.emit("join_story", currentStory.id);
+    socket.on("story:viewed", onStoryViewed);
+
+    return () => {
+      socket.emit("leave_story", currentStory.id);
+      socket.off("story:viewed", onStoryViewed);
+    };
+  }, [open, currentStory?.id, isOwn, socket]);
 
   useEffect(() => {
     goNextRef.current = goNext;
@@ -193,13 +215,13 @@ export const StoryViewer = ({
           </div>
 
           {currentStory.mediaType === "VIDEO" ? (
-            <video
+            <VideoPlayer
               key={currentStory.id}
               src={currentStory.mediaUrl}
-              className="w-full h-full object-contain"
               autoPlay
               muted
-              playsInline
+              className="w-full h-full"
+              aspectRatio="9/16"
             />
           ) : (
             <img

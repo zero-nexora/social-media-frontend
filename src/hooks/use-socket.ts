@@ -13,7 +13,6 @@ import type {
   SocketFriendRequestCancelledPayload,
   SocketFriendUnfriendedPayload,
   SocketStoryNewPayload,
-  SocketStoryViewedPayload,
   SocketStoryDeletedPayload,
 } from "../types";
 
@@ -124,13 +123,6 @@ export const useSocket = () => {
       toast(`${payload.user.username} vừa đăng một story mới`);
     };
 
-    const onStoryViewed = (payload: SocketStoryViewedPayload) => {
-      queryClient.invalidateQueries({ queryKey: ["my-stories"] });
-      queryClient.invalidateQueries({
-        queryKey: ["story-viewers", payload.storyId],
-      });
-    };
-
     const onStoryDeleted = (_payload: SocketStoryDeletedPayload) => {
       queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
     };
@@ -148,7 +140,6 @@ export const useSocket = () => {
     socket.on("new_notification", onNewNotification);
     socket.on("story:new", onStoryNew);
     socket.on("story:deleted", onStoryDeleted);
-    socket.on("story:viewed", onStoryViewed);
     socket.on("friend_request", onFriendRequest);
     socket.on("friend_request_cancelled", onFriendRequestCancelled);
     socket.on("friend_unfriended", onFriendUnfriended);
@@ -160,7 +151,6 @@ export const useSocket = () => {
       socket.off("new_notification", onNewNotification);
       socket.off("story:new", onStoryNew);
       socket.off("story:deleted", onStoryDeleted);
-      socket.off("story:viewed", onStoryViewed);
       socket.off("friend_request", onFriendRequest);
       socket.off("friend_request_cancelled", onFriendRequestCancelled);
       socket.off("friend_accepted", onFriendAccepted);

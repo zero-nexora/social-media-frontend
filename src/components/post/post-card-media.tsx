@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "../../lib/utils";
 import { ImageLightbox } from "../shared/image-lightbox";
+import { VideoPlayer } from "../shared/video-player";
 
 interface Props {
   urls: string[];
@@ -159,13 +160,7 @@ const Thumb = ({
       onClick={() => !video && openLightbox(index)}
     >
       {video ? (
-        <video
-          src={src}
-          controls
-          playsInline
-          className="w-full h-full object-cover"
-          onClick={(e) => e.stopPropagation()}
-        />
+        <VideoPlayer src={src} className="w-full h-full" aspectRatio="16/9" />
       ) : (
         <img
           src={src}

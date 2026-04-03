@@ -44,6 +44,7 @@ export const FriendRequestCard = ({
       queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
     },
     onError: () => toast.error("Thao tác thất bại"),
   });

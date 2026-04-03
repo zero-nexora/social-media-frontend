@@ -81,6 +81,7 @@ export const FriendshipButton = ({
       queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["friends", profile.id] });
+      queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
     },
     onError: () => toast.error("Thao tác thất bại"),
   });

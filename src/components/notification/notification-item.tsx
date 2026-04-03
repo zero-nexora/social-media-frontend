@@ -113,7 +113,10 @@ export const NotificationItem = ({ notification }: Props) => {
             <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
               Huỷ
             </AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteMutation.mutate()}>
+            <AlertDialogAction onClick={(e) => {
+              e.stopPropagation();
+              deleteMutation.mutate()
+            }}>
               Xác nhận
             </AlertDialogAction>
           </AlertDialogFooter>

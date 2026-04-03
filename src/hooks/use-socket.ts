@@ -99,6 +99,7 @@ export const useSocket = () => {
       queryClient.invalidateQueries({
         queryKey: ["friends", payload.accepter.id],
       });
+      queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
     };
 
     const onFriendRequestCancelled = (

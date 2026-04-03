@@ -4,6 +4,7 @@ import { useAuth } from "../../hooks/use-auth";
 import { useNotificationStore } from "../../stores/notification-store";
 import { UserAvatar } from "../shared/user-avatar";
 import { cn } from "../../lib/utils";
+import { Badge } from "../ui/badge";
 
 const NAV_ITEMS = [
   { label: "Trang chủ", icon: Home, path: "/feed" },
@@ -78,9 +79,12 @@ export const LeftSidebar = () => {
             <Icon size={19} strokeWidth={active ? 2.5 : 2} />
             <span className="flex-1">{label}</span>
             {count > 0 && (
-              <span className="min-w-5 h-5 flex items-center justify-center rounded-full bg-primary/15 text-primary text-[10px] font-semibold px-1">
+              <Badge
+                variant="destructive"
+                className="min-w-5 h-5 px-1 text-[10px] flex items-center justify-center rounded-full"
+              >
                 {count > 99 ? "99+" : count}
-              </span>
+              </Badge>
             )}
           </Link>
         );

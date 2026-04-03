@@ -12,7 +12,6 @@ import { AuthLayout } from "../../components/layout/auth/auth-layout";
 import {
   AuthCard,
   AuthCardHeader,
-  AuthCardLogo,
 } from "../../components/shared/auth-card";
 import { FormField } from "../../components/shared/form-field";
 import { PasswordInput } from "../../components/shared/password-input";
@@ -60,7 +59,6 @@ function EmailSentScreen({
             <Mail size={26} className="text-primary" />
           </div>
           <div className="space-y-1">
-            <AuthCardLogo />
             <h2 className="text-xl font-bold">Kiểm tra hộp thư</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Link xác thực đã được gửi đến{" "}

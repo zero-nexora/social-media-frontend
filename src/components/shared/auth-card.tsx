@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Logo } from "./logo";
 
 interface AuthCardProps {
   children: ReactNode;
@@ -17,10 +16,6 @@ export function AuthCard({ children, className = "" }: AuthCardProps) {
   );
 }
 
-export function AuthCardLogo() {
-  return <Logo />;
-}
-
 interface AuthCardHeaderProps {
   title: string;
   subtitle?: string;
@@ -29,7 +24,6 @@ interface AuthCardHeaderProps {
 export function AuthCardHeader({ title, subtitle }: AuthCardHeaderProps) {
   return (
     <div className="space-y-0.5">
-      <AuthCardLogo />
       <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
       {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
     </div>

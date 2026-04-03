@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { authApi } from "../../services/api-services";
 import { Button } from "../../components/ui/button";
 import { AuthLayout } from "../../components/layout/auth/auth-layout";
-import { AuthCard, AuthCardLogo } from "../../components/shared/auth-card";
+import { AuthCard } from "../../components/shared/auth-card";
 
 type State = "loading" | "success" | "error";
 
@@ -77,7 +77,6 @@ export default function VerifyEmailPage() {
   return (
     <AuthLayout>
       <AuthCard>
-        <AuthCardLogo />
         <VerifyState state={state} />
 
         {state === "error" && (

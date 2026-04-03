@@ -19,7 +19,6 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { useSocketStore } from "../../stores/socket-store";
-import { VideoPlayer } from "../shared/video-player";
 
 const STORY_DURATION = 5000;
 const TICK = 100;
@@ -55,6 +54,11 @@ export const StoryViewer = ({
   const currentStory = currentGroup?.stories[storyIdx];
   const isOwn = user?.id === currentGroup.user.id;
 
+  const videoDurationRef = useRef<number>(STORY_DURATION);
+  const [mediaReady, setMediaReady] = useState(
+    currentStory?.mediaType !== "VIDEO",
+  );
+
   const goNext = useCallback(() => {
     const group = groups[groupIdx];
     if (!group) {
@@ -77,6 +81,10 @@ export const StoryViewer = ({
       queryKey: ["story-viewers", payload.storyId],
     });
   };
+
+  useEffect(() => {
+    videoDurationRef.current = STORY_DURATION;
+  }, [currentStory?.id]);
 
   useEffect(() => {
     if (!open || !currentStory || !isOwn || !socket) return;
@@ -116,7 +124,7 @@ export const StoryViewer = ({
     setProgress(0);
     intervalRef.current = setInterval(() => {
       setProgress((p) => {
-        const next = p + (TICK / STORY_DURATION) * 100;
+        const next = p + (TICK / videoDurationRef.current) * 100;
         if (next >= 100) {
           goNextRef.current();
           return 0;
@@ -127,7 +135,7 @@ export const StoryViewer = ({
   }, []);
 
   useEffect(() => {
-    if (!open || paused || viewersOpen) {
+    if (!open || paused || viewersOpen || !mediaReady) {
       clearTimer();
       return;
     }
@@ -136,7 +144,7 @@ export const StoryViewer = ({
       clearTimeout(t);
       clearTimer();
     };
-  }, [open, groupIdx, storyIdx, paused, viewersOpen, startTimer]);
+  }, [open, groupIdx, storyIdx, paused, viewersOpen, startTimer, mediaReady]);
 
   useEffect(() => () => clearTimer(), []);
 
@@ -215,13 +223,18 @@ export const StoryViewer = ({
           </div>
 
           {currentStory.mediaType === "VIDEO" ? (
-            <VideoPlayer
+            <video
               key={currentStory.id}
               src={currentStory.mediaUrl}
+              className="w-full h-full object-contain"
               autoPlay
               muted
-              className="w-full h-full"
-              aspectRatio="9/16"
+              playsInline
+              onLoadedMetadata={(e) => {
+                const dur = e.currentTarget.duration;
+                if (dur && isFinite(dur)) videoDurationRef.current = dur * 1000;
+                setMediaReady(true);
+              }}
             />
           ) : (
             <img

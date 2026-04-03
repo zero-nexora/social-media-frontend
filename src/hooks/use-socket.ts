@@ -116,6 +116,7 @@ export const useSocket = () => {
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
+      queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
     };
 
     const onStoryNew = (payload: SocketStoryNewPayload) => {

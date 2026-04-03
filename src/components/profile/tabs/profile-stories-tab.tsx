@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
+import { Play, Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { storiesApi } from "../../../services/api-services";
@@ -38,6 +38,29 @@ function StorySkeleton({ count }: { count: number }) {
   );
 }
 
+function MediaThumb({ story }: { story: Story }) {
+  if (story.mediaType === "VIDEO") {
+    return (
+      <>
+        <video
+          src={story.mediaUrl}
+          className="w-full h-full object-cover"
+          preload="metadata"
+          muted
+        />
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
+          <div className="w-9 h-9 rounded-full bg-white/80 flex items-center justify-center">
+            <Play size={16} className="text-black fill-black ml-0.5" />
+          </div>
+        </div>
+      </>
+    );
+  }
+  return (
+    <img src={story.mediaUrl} alt="" className="w-full h-full object-cover" />
+  );
+}
+
 function StoryCard({
   story,
   index,
@@ -51,7 +74,7 @@ function StoryCard({
 }) {
   return (
     <div className="relative group aspect-9/16 rounded-xl overflow-hidden bg-muted">
-      <img src={story.mediaUrl} alt="" className="w-full h-full object-cover" />
+      <MediaThumb story={story} />
 
       {story.isExpired ? (
         <div className="absolute inset-0 bg-foreground/50 flex items-end p-2">
@@ -242,14 +265,7 @@ export const ProfileStoriesTab = ({
             onClick={() => openViewer(i)}
             className="relative aspect-9/16 rounded-xl overflow-hidden bg-muted"
           >
-            <img
-              src={s.mediaUrl}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-            {s.isViewed && (
-              <div className="absolute inset-0 bg-foreground/20" />
-            )}
+            <MediaThumb story={s} />
           </button>
         ))}
       </div>

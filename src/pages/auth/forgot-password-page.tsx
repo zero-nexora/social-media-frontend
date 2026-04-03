@@ -9,7 +9,7 @@ import { authApi } from "../../services/api-services";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { AuthLayout } from "../../components/layout/auth/auth-layout";
-import { AuthCard, AuthCardLogo } from "../../components/shared/auth-card";
+import { AuthCard } from "../../components/shared/auth-card";
 import { FormField } from "../../components/shared/form-field";
 import { PasswordInput } from "../../components/shared/password-input";
 import { PasswordStrengthBar } from "../../components/shared/password-strength-bar";
@@ -25,12 +25,15 @@ function StepIndicator({
   labels: string[];
 }) {
   return (
-    <div className="flex items-center justify-between">
-      {labels.map((label, i) => (
-        <div key={i} className="flex items-center flex-1">
-          <div className="flex flex-col items-center gap-1">
+    <div className="space-y-2">
+      <div className="flex items-center">
+        {labels.map((_, i) => (
+          <div
+            key={i}
+            className={`flex items-center ${i < labels.length - 1 ? "flex-1" : ""}`}
+          >
             <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all duration-300 ${
+              className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all duration-300 ${
                 current > i + 1
                   ? "bg-primary border-primary text-primary-foreground"
                   : current === i + 1
@@ -40,19 +43,34 @@ function StepIndicator({
             >
               {current > i + 1 ? "✓" : i + 1}
             </div>
-            <span className="text-[10px] text-muted-foreground hidden sm:block whitespace-nowrap">
-              {label}
-            </span>
+
+            {i < labels.length - 1 && (
+              <div
+                className={`flex-1 h-px mx-2 transition-colors duration-300 ${
+                  current > i + 1 ? "bg-primary" : "bg-border"
+                }`}
+              />
+            )}
           </div>
-          {i < labels.length - 1 && (
-            <div
-              className={`flex-1 h-px mx-2 transition-colors duration-300 ${
-                current > i + 1 ? "bg-primary" : "bg-border"
-              }`}
-            />
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
+
+      <div className="hidden sm:flex justify-between">
+        {labels.map((label, i) => (
+          <span
+            key={i}
+            className={`text-[10px] whitespace-nowrap transition-colors duration-300 ${
+              current === i + 1
+                ? "text-primary font-medium"
+                : current > i + 1
+                  ? "text-muted-foreground"
+                  : "text-muted-foreground/50"
+            }`}
+          >
+            {label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -212,7 +230,6 @@ export default function ForgotPasswordPage() {
     <AuthLayout>
       <AuthCard>
         <div className="space-y-1">
-          <AuthCardLogo />
           <StepIndicator current={step} labels={STEP_LABELS} />
         </div>
 

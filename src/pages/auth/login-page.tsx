@@ -1,17 +1,8 @@
 import { useState } from "react";
-import {
-  Link,
-  useNavigate,
-  useSearchParams,
-  useLocation,
-} from "react-router-dom";
+import { Link, useSearchParams, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { authApi } from "../../services/api-services";
-import { useAuth } from "../../hooks/use-auth";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { AuthLayout } from "../../components/layout/auth/auth-layout";
@@ -20,6 +11,10 @@ import { StatusBanner } from "../../components/shared/status-banner";
 import { FormField } from "../../components/shared/form-field";
 import { PasswordInput } from "../../components/shared/password-input";
 import { GoogleButton } from "../../components/shared/google-button";
+import {
+  useLoginMutation,
+  useResendVerifyMutation,
+} from "../../hooks/use-auth-mutations";
 
 const schema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -28,8 +23,6 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function LoginPage() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
@@ -49,36 +42,13 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
-  const loginMutation = useMutation({
-    mutationFn: authApi.login,
-    onSuccess: (data) => {
-      login(data.user, data.accessToken);
-      navigate(from, { replace: true });
-    },
-    onError: (err: any) => {
-      const msg: string = err?.response?.data?.error?.message ?? "";
-      const status: number = err?.response?.status ?? 0;
-
-      if (status === 403 && msg.includes("xác thực")) {
-        setUnverifiedEmail(
-          err?.config?.data
-            ? ((JSON.parse(err.config.data) as { email?: string }).email ??
-                null)
-            : null,
-        );
-      } else if (status === 401) {
-        setError("password", { message: "Email hoặc mật khẩu không đúng" });
-      } else {
-        toast.error(msg || "Đăng nhập thất bại");
-      }
-    },
+  const loginMutation = useLoginMutation({
+    from,
+    setUnverifiedEmail,
+    setError,
   });
 
-  const resendMutation = useMutation({
-    mutationFn: () => authApi.resendVerify(unverifiedEmail!),
-    onSuccess: () => toast.success("Đã gửi lại email xác thực"),
-    onError: () => toast.error("Gửi email thất bại, thử lại sau"),
-  });
+  const resendMutation = useResendVerifyMutation();
 
   return (
     <AuthLayout>
@@ -102,7 +72,7 @@ export default function LoginPage() {
             <p>Tài khoản chưa xác thực email.</p>
             <button
               className="underline font-semibold hover:no-underline disabled:opacity-50"
-              onClick={() => resendMutation.mutate()}
+              onClick={() => resendMutation.mutate(unverifiedEmail)}
               disabled={resendMutation.isPending}
             >
               {resendMutation.isPending

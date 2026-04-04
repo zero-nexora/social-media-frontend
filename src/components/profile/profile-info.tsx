@@ -1,8 +1,5 @@
 import { useRef, useState } from "react";
 import { Camera } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { usersApi, followersApi } from "../../services/api-services";
 import { usePresence } from "../../hooks/use-presence";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -12,9 +9,12 @@ import { OnlineBadge } from "../shared/online-badge";
 import { cn } from "../../lib/utils";
 import type { User, FriendshipStatus } from "../../types";
 import { AvatarDefault } from "../shared/avatar-default";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../stores/auth-store";
 import { ImageLightbox } from "../shared/image-lightbox";
+import {
+  useUpdateAvatarMutation,
+  useEditProfileMutation,
+} from "../../hooks/use-user-mutations";
+import { useFollowMutation } from "../../hooks/use-follow-mutations";
 
 interface Props {
   profile: User;
@@ -40,9 +40,6 @@ export const ProfileInfo = ({
   isFollowing,
   onRefresh,
 }: Props) => {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { updateUser } = useAuthStore();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [editUsername, setEditUsername] = useState(profile.username);
@@ -51,67 +48,20 @@ export const ProfileInfo = ({
 
   usePresence(isOwn ? [] : [profile.id]);
 
-  const avatar = useMutation({
-    mutationFn: (file: File) => usersApi.updateAvatar(file),
-    onSuccess: ({ avatarUrl }) => {
-      updateUser({ avatar: avatarUrl });
-      queryClient.invalidateQueries({
-        queryKey: ["profile", profile.username],
-      });
-      toast.success("Đã cập nhật ảnh đại diện");
-    },
-    onError: () => toast.error("Cập nhật thất bại"),
-  });
+  const updateAvatarMutation = useUpdateAvatarMutation(profile.username);
 
-  const edit = useMutation({
-    mutationFn: () =>
-      usersApi.updateMe({
-        username: editUsername !== profile.username ? editUsername : undefined,
-        bio: editBio !== (profile.bio ?? "") ? editBio : undefined,
-      }),
-    onSuccess: (updatedUser) => {
-      setEditOpen(false);
-      const newUsername = updatedUser.username;
-      const usernameChanged = newUsername !== profile.username;
-
-      updateUser({ username: newUsername, bio: updatedUser.bio });
-
-      queryClient.removeQueries({ queryKey: ["profile", profile.username] });
-
-      if (usernameChanged) {
-        navigate(`/profile/${editUsername}`, { replace: true });
-      } else {
-        queryClient.invalidateQueries({
-          queryKey: ["profile", profile.username],
-        });
-        onRefresh();
-      }
-      toast.success("Đã cập nhật thông tin");
-    },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error?.message ?? "";
-      toast.error(
-        msg.includes("Username")
-          ? "Username đã được sử dụng"
-          : "Cập nhật thất bại",
-      );
-    },
-  });
-
-  const follow = useMutation({
-    mutationFn: () =>
-      isFollowing
-        ? followersApi.unfollow(profile.id)
-        : followersApi.follow(profile.id),
+  const editProfileMutation = useEditProfileMutation({
+    profile,
     onSuccess: () => {
+      setEditOpen(false);
       onRefresh();
-      if (isFollowing) {
-        queryClient.invalidateQueries({ queryKey: ["following", profile.id] });
-      } else {
-        queryClient.invalidateQueries({ queryKey: ["followers", profile.id] });
-      }
-      toast.info(isFollowing ? "Đã bỏ theo dõi" : "Đã theo dõi");
     },
+  });
+
+  const followMutation = useFollowMutation({
+    profileId: profile.id,
+    isFollowing,
+    onSuccess: onRefresh,
   });
 
   const openEdit = () => {
@@ -159,7 +109,7 @@ export const ProfileInfo = ({
                     e.stopPropagation();
                     avatarInputRef.current?.click();
                   }}
-                  disabled={avatar.isPending}
+                  disabled={updateAvatarMutation.isPending}
                   className="absolute bottom-0 right-0 w-7 h-7 bg-muted border-2 border-background rounded-full flex items-center justify-center hover:bg-muted/70 transition-colors disabled:opacity-60 z-10"
                 >
                   <Camera size={13} />
@@ -170,7 +120,8 @@ export const ProfileInfo = ({
                   accept="image/*"
                   className="hidden"
                   onChange={(e) =>
-                    e.target.files?.[0] && avatar.mutate(e.target.files[0])
+                    e.target.files?.[0] &&
+                    updateAvatarMutation.mutate(e.target.files[0])
                   }
                 />
               </>
@@ -202,9 +153,9 @@ export const ProfileInfo = ({
                   variant={isFollowing ? "secondary" : "outline"}
                   onClick={(e) => {
                     e.stopPropagation();
-                    follow.mutate();
+                    followMutation.mutate();
                   }}
-                  disabled={follow.isPending}
+                  disabled={followMutation.isPending}
                 >
                   {isFollowing ? "Đang theo dõi" : "Theo dõi"}
                 </Button>
@@ -272,10 +223,15 @@ export const ProfileInfo = ({
             </div>
             <Button
               className="w-full"
-              onClick={() => edit.mutate()}
-              disabled={edit.isPending}
+              onClick={() =>
+                editProfileMutation.mutate({
+                  username: editUsername,
+                  bio: editBio,
+                })
+              }
+              disabled={editProfileMutation.isPending}
             >
-              {edit.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+              {editProfileMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </div>
         </SheetContent>

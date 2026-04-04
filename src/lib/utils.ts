@@ -192,3 +192,4 @@ export const isImageFile = (file: File): boolean =>
 
 export const isVideoFile = (file: File): boolean =>
   file.type.startsWith("video/");
+

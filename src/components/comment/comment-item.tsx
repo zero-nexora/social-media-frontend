@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Pencil,
   Trash2,
@@ -7,8 +6,6 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { toast } from "sonner";
-import { commentsApi } from "../../services/api-services";
 import { useAuth } from "../../hooks/use-auth";
 import { UserAvatar } from "../shared/user-avatar";
 import { ReplyList } from "./reply-list";
@@ -30,6 +27,10 @@ import {
 } from "../ui/alert-dialog";
 import { fromNow } from "../../lib/utils";
 import type { Comment } from "../../types";
+import {
+  useDeleteCommentMutation,
+  useUpdateCommentMutation,
+} from "../../hooks/use-comment-mutations";
 
 interface Props {
   comment: Comment;
@@ -39,7 +40,6 @@ interface Props {
 
 export const CommentItem = ({ comment, postId, onReply }: Props) => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const isOwn = user?.id === comment.userId;
 
   const [showReplies, setShowReplies] = useState(false);
@@ -49,24 +49,13 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
 
   const replyCount = comment._count?.replies ?? 0;
 
-  const update = useMutation({
-    mutationFn: () => commentsApi.update(comment.id, editContent),
-    onSuccess: () => {
-      setEditing(false);
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-    },
-    onError: () => toast.error("Sửa bình luận thất bại"),
+  const updateCommentMutation = useUpdateCommentMutation({
+    postId,
+    commentId: comment.id,
+    onSuccess: () => setEditing(false),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: () => commentsApi.delete(comment.id),
-    onSuccess: () => {
-      setDeleteOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-      queryClient.invalidateQueries({ queryKey: ["post", postId] });
-    },
-    onError: () => toast.error("Xoá bình luận thất bại"),
-  });
+  const deleteCommentMutation = useDeleteCommentMutation({ postId });
 
   return (
     <div className="flex gap-3 group">
@@ -84,11 +73,13 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
             />
             <div className="flex gap-3">
               <button
-                onClick={() => update.mutate()}
-                disabled={!editContent.trim() || update.isPending}
+                onClick={() => updateCommentMutation.mutate(editContent)}
+                disabled={
+                  !editContent.trim() || updateCommentMutation.isPending
+                }
                 className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
               >
-                {update.isPending ? "Đang lưu..." : "Lưu"}
+                {updateCommentMutation.isPending ? "Đang lưu..." : "Lưu"}
               </button>
               <button
                 onClick={() => {
@@ -191,10 +182,10 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
             <AlertDialogCancel>Huỷ</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={() => deleteMutation.mutate()}
-              disabled={deleteMutation.isPending}
+              onClick={() => deleteCommentMutation.mutate(comment.id)}
+              disabled={deleteCommentMutation.isPending}
             >
-              {deleteMutation.isPending ? "Đang xoá..." : "Xoá"}
+              {deleteCommentMutation.isPending ? "Đang xoá..." : "Xoá"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -3,10 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { Eye, EyeOff, CheckCircle2, AlertCircle, Chrome } from "lucide-react";
-import { usersApi, authApi } from "../services/api-services";
 import { useAuth } from "../hooks/use-auth";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -28,6 +25,15 @@ import {
 } from "../components/ui/alert-dialog";
 import { getPasswordStrength } from "../lib/utils";
 import { PasswordStrengthBar } from "../components/shared/password-strength-bar";
+import {
+  useDeactivateMutation,
+  useDeleteAccountMutation,
+  useUpdateMeMutation,
+} from "../hooks/use-user-mutations";
+import {
+  useChangePasswordMutation,
+  useResendVerifyMutation,
+} from "../hooks/use-auth-mutations";
 
 // ─── Constants ────────────────────────────────────────
 const TABS = [
@@ -77,7 +83,6 @@ function PasswordInput({
 export default function SettingsPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const qc = useQueryClient();
 
   const [username, setUsername] = useState(user?.username ?? "");
   const [bio, setBio] = useState(user?.bio ?? "");
@@ -104,81 +109,37 @@ export default function SettingsPage() {
   const isDirty = username !== user?.username || bio !== (user?.bio ?? "");
 
   // ─── Mutations ────────────────────────────────────────
-  const updateMutation = useMutation({
-    mutationFn: () =>
-      usersApi.updateMe({
-        username: username !== user?.username ? username : undefined,
-        bio: bio !== user?.bio ? bio : undefined,
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["me"] });
-      toast.success("Đã lưu thay đổi");
-    },
-    onError: (err: any) => {
-      if (err?.response?.data?.error?.message?.includes("Username"))
-        toast.error("Username đã tồn tại");
-      else toast.error("Cập nhật thất bại");
-    },
-  });
+  const updateMeMutation = useUpdateMeMutation();
 
-  const resendMutation = useMutation({
-    mutationFn: () => authApi.resendVerify(user?.email ?? ""),
+  const resendMutation = useResendVerifyMutation({
     onSuccess: () => {
-      toast.success("Đã gửi email xác thực");
       setResendCooldown(60);
-      const t = setInterval(
-        () =>
-          setResendCooldown((c) => {
-            if (c <= 1) {
-              clearInterval(t);
-              return 0;
-            }
-            return c - 1;
-          }),
-        1000,
-      );
+      const t = setInterval(() => {
+        setResendCooldown((c) => {
+          if (c <= 1) {
+            clearInterval(t);
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
     },
   });
 
-  const changePwMutation = useMutation({
-    mutationFn: (d: PwForm) =>
-      authApi.changePassword({
-        currentPassword: d.currentPassword,
-        newPassword: d.newPassword,
-      }),
-    onSuccess: async () => {
-      toast.success("Đổi mật khẩu thành công");
+  const changePwMutation = useChangePasswordMutation({
+    setError,
+    onSuccess: () => {
       reset();
       setTimeout(async () => {
         await logout();
         navigate("/login?changed=true");
       }, 1500);
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.error?.message ?? "";
-      if (msg.includes("hiện tại"))
-        setError("currentPassword", { message: msg });
-      else toast.error(msg || "Đổi mật khẩu thất bại");
-    },
   });
 
-  const deactivateMutation = useMutation({
-    mutationFn: usersApi.deactivate,
-    onSuccess: async () => {
-      await logout();
-      navigate("/login");
-    },
-  });
+  const deactivateMutation = useDeactivateMutation();
 
-  const deleteMutation = useMutation({
-    mutationFn: usersApi.deleteAccount,
-    onSuccess: async () => {
-      await logout();
-      navigate("/login");
-    },
-  });
-
-  console.log(user);
+  const deleteMutation = useDeleteAccountMutation();
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -223,10 +184,15 @@ export default function SettingsPage() {
               </p>
             </div>
             <Button
-              disabled={!isDirty || updateMutation.isPending}
-              onClick={() => updateMutation.mutate()}
+              disabled={!isDirty || updateMeMutation.isPending}
+              onClick={() =>
+                updateMeMutation.mutate({
+                  username: username !== user?.username ? username : undefined,
+                  bio: bio !== (user?.bio ?? "") ? bio : undefined,
+                })
+              }
             >
-              {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+              {updateMeMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </div>
 
@@ -251,7 +217,7 @@ export default function SettingsPage() {
                 size="sm"
                 variant="outline"
                 disabled={resendCooldown > 0 || resendMutation.isPending}
-                onClick={() => resendMutation.mutate()}
+                onClick={() => resendMutation.mutate(user?.email ?? "")}
               >
                 {resendCooldown > 0
                   ? `Gửi lại sau ${resendCooldown}s`

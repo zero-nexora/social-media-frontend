@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, X, UserPlus, Clock } from "lucide-react";
-import { friendshipsApi } from "../../services/api-services";
 import { UserAvatar } from "../shared/user-avatar";
 import { OnlineBadge } from "../shared/online-badge";
 import { Button } from "../ui/button";
@@ -18,9 +16,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
-import { useNotificationStore } from "../../stores/notification-store";
-import { toast } from "sonner";
-import { useAuth } from "../../hooks/use-auth";
+import {
+  useAcceptRequestMutation,
+  useCancelRequestMutation,
+  useRejectRequestMutation,
+  useSendRequestMutation,
+} from "../../hooks/use-friendship-mutations";
 
 // ─── FriendRequestCard ────────────────────────────────────
 export const FriendRequestCard = ({
@@ -28,37 +29,17 @@ export const FriendRequestCard = ({
 }: {
   friendship: Friendship;
 }) => {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
   const sender = friendship.sender!;
-  const { decrementFriendRequest } = useNotificationStore();
   const [handled, setHandled] = useState(false);
 
-  const accept = useMutation({
-    mutationFn: () => friendshipsApi.accept(sender.id),
-    onSuccess: () => {
-      decrementFriendRequest();
-      setHandled(true);
-      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
-      queryClient.invalidateQueries({ queryKey: ["friends"] });
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
-      queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
-      queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
-    },
-    onError: () => toast.error("Thao tác thất bại"),
+  const acceptRequestMutation = useAcceptRequestMutation({
+    senderId: sender.id,
+    onSuccess: () => setHandled(true),
   });
 
-  const reject = useMutation({
-    mutationFn: () => friendshipsApi.reject(sender.id),
-    onSuccess: () => {
-      decrementFriendRequest();
-      setHandled(true);
-      toast.info("Đã từ chối lời mời");
-      queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
-    },
-    onError: () => toast.error("Thao tác thất bại"),
+  const rejectRequestMutation = useRejectRequestMutation({
+    senderId: sender.id,
+    onSuccess: () => setHandled(true),
   });
 
   if (handled) return null;
@@ -90,16 +71,16 @@ export const FriendRequestCard = ({
       <div className="flex gap-2 shrink-0">
         <Button
           size="sm"
-          onClick={() => accept.mutate()}
-          disabled={accept.isPending}
+          onClick={() => acceptRequestMutation.mutate()}
+          disabled={acceptRequestMutation.isPending}
         >
           <Check size={14} className="mr-1" /> Xác nhận
         </Button>
         <Button
           size="sm"
           variant="outline"
-          onClick={() => reject.mutate()}
-          disabled={reject.isPending}
+          onClick={() => rejectRequestMutation.mutate()}
+          disabled={rejectRequestMutation.isPending}
         >
           <X size={14} className="mr-1" /> Xoá
         </Button>
@@ -116,20 +97,10 @@ export const FriendSuggestionCard = ({
   suggestion: FriendSuggestion;
   onDismiss: (userId: string) => void;
 }) => {
-  const queryClient = useQueryClient();
   const { user, mutualCount } = suggestion;
 
-  const sendMutation = useMutation({
-    mutationFn: () => friendshipsApi.sendRequest(user.id),
-    onSuccess: () => {
-      toast.info(`Đã gửi lời mời đến ${user.username || "người dùng"}`);
-      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
-      queryClient.invalidateQueries({
-        queryKey: ["friend-suggestions-sidebar"],
-      });
-      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
-    },
-    onError: () => toast.error("Thao tác thất bại"),
+  const sendRequestMutation = useSendRequestMutation({
+    profile: user,
   });
 
   return (
@@ -153,12 +124,14 @@ export const FriendSuggestionCard = ({
       <div className="flex items-center gap-1">
         <Button
           size="sm"
-          variant={sendMutation.isSuccess ? "secondary" : "default"}
-          disabled={sendMutation.isSuccess || sendMutation.isPending}
-          onClick={() => sendMutation.mutate()}
+          variant={sendRequestMutation.isSuccess ? "secondary" : "default"}
+          disabled={
+            sendRequestMutation.isSuccess || sendRequestMutation.isPending
+          }
+          onClick={() => sendRequestMutation.mutate()}
           className="h-8 px-2.5 text-xs"
         >
-          {sendMutation.isSuccess ? (
+          {sendRequestMutation.isSuccess ? (
             "Đã gửi"
           ) : (
             <>
@@ -180,21 +153,12 @@ export const FriendSuggestionCard = ({
 
 // ─── SentRequestCard — lời mời mình đã gửi, chờ đối phương ─
 export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
-  const queryClient = useQueryClient();
   const receiver = friendship.receiver!;
   const [cancelled, setCancelled] = useState(false);
 
-  const cancelMutation = useMutation({
-    mutationFn: () => friendshipsApi.cancel(receiver.id),
-    onSuccess: () => {
-      setCancelled(true);
-      toast.info(`Đã huỷ lời mời gửi đến ${receiver.username}`);
-      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
-      queryClient.invalidateQueries({
-        queryKey: ["profile", receiver.username],
-      });
-    },
-    onError: () => toast.error("Thao tác thất bại"),
+  const cancelRequestMutation = useCancelRequestMutation({
+    profile: receiver,
+    onSuccess: () => setCancelled(true),
   });
 
   if (cancelled) return null;
@@ -225,11 +189,11 @@ export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
       <Button
         size="sm"
         variant="outline"
-        onClick={() => cancelMutation.mutate()}
-        disabled={cancelMutation.isPending}
+        onClick={() => cancelRequestMutation.mutate()}
+        disabled={cancelRequestMutation.isPending}
         className="shrink-0"
       >
-        {cancelMutation.isPending ? "Đang huỷ..." : "Huỷ lời mời"}
+        {cancelRequestMutation.isPending ? "Đang huỷ..." : "Huỷ lời mời"}
       </Button>
     </div>
   );

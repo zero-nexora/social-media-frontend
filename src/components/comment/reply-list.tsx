@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Pencil, Trash2, MoreHorizontal, Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import { commentsApi } from "../../services/api-services";
 import { useAuth } from "../../hooks/use-auth";
 import { UserAvatar } from "../shared/user-avatar";
@@ -23,6 +22,10 @@ import {
 } from "../ui/alert-dialog";
 import { fromNow } from "../../lib/utils";
 import type { Comment } from "../../types";
+import {
+  useDeleteCommentMutation,
+  useUpdateCommentMutation,
+} from "../../hooks/use-comment-mutations";
 
 interface Props {
   commentId: string;
@@ -32,7 +35,6 @@ interface Props {
 
 export const ReplyList = ({ commentId, postId, onReply }: Props) => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
 
   const {
     data: replies = [],
@@ -48,27 +50,16 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
   const [editContent, setEditContent] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const update = useMutation({
-    mutationFn: () => commentsApi.update(editingId!, editContent),
-    onSuccess: () => {
-      setEditingId(null);
-      queryClient.invalidateQueries({ queryKey: ["replies", commentId] });
-    },
-    onError: () => toast.error("Sửa thất bại"),
+  const updateCommentMutation = useUpdateCommentMutation({
+    postId,
+    commentId: editingId ?? "",
+    onSuccess: () => setEditingId(null),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => commentsApi.delete(id),
-    onSuccess: () => {
-      setDeleteId(null);
-      // Refresh this reply list
-      queryClient.invalidateQueries({ queryKey: ["replies", commentId] });
-      // Refresh parent comment to update _count.replies
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-      // Update post commentsCount
-      queryClient.invalidateQueries({ queryKey: ["post", postId] });
-    },
-    onError: () => toast.error("Xoá thất bại"),
+  const deleteCommentMutation = useDeleteCommentMutation({
+    postId,
+    parentCommentId: commentId,
+    onSuccess: () => setDeleteId(null),
   });
 
   // ─── Loading ──────────────────────────────────────────
@@ -127,11 +118,17 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
                     />
                     <div className="flex gap-3">
                       <button
-                        onClick={() => update.mutate()}
-                        disabled={!editContent.trim() || update.isPending}
+                        onClick={() =>
+                          updateCommentMutation.mutate(editContent)
+                        }
+                        disabled={
+                          !editContent.trim() || updateCommentMutation.isPending
+                        }
                         className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
                       >
-                        {update.isPending ? "Đang lưu..." : "Lưu"}
+                        {updateCommentMutation.isPending
+                          ? "Đang lưu..."
+                          : "Lưu"}
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
@@ -212,10 +209,10 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
             <AlertDialogCancel>Huỷ</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={() => deleteId && deleteMutation.mutate(deleteId)}
-              disabled={deleteMutation.isPending}
+              onClick={() => deleteId && deleteCommentMutation.mutate(deleteId)}
+              disabled={deleteCommentMutation.isPending}
             >
-              {deleteMutation.isPending ? "Đang xoá..." : "Xoá"}
+              {deleteCommentMutation.isPending ? "Đang xoá..." : "Xoá"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

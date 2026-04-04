@@ -1,8 +1,4 @@
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Bell } from "lucide-react";
 import { notificationsApi } from "../services/api-services";
 import { useNotificationStore } from "../stores/notification-store";
@@ -17,10 +13,10 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { useState } from "react";
+import { useMarkAllReadMutation } from "../hooks/use-notification-mutations";
 
 export default function NotificationsPage() {
-  const queryClient = useQueryClient();
-  const { markAllRead, unreadCount } = useNotificationStore();
+  const { unreadCount } = useNotificationStore();
   const [tab, setTab] = useState<"all" | "unread">("all");
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
@@ -42,16 +38,10 @@ export default function NotificationsPage() {
     isFetchingNextPage,
   });
 
-  const markAllMutation = useMutation({
-    mutationFn: notificationsApi.markAllRead,
-    onSuccess: () => {
-      markAllRead();
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    },
-  });
+  const markAllMutation = useMarkAllReadMutation();
 
   const notifications = data?.pages.flatMap((p) => p.data) ?? [];
-  
+
   return (
     <div className="max-w-2xl mx-auto">
       {/* Header */}

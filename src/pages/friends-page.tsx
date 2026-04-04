@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  useInfiniteQuery,
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Users, Search, Clock } from "lucide-react";
 import { friendshipsApi } from "../services/api-services";
 import { useInfiniteScroll } from "../hooks/use-infinite-scroll";
@@ -19,10 +14,10 @@ import { UserCardSkeleton } from "../components/shared/skeleton-card";
 import { Input } from "../components/ui/input";
 import { useAuth } from "../hooks/use-auth";
 import type { User } from "../types";
+import { useUnfriendMutation } from "../hooks/use-friendship-mutations";
 
 export default function FriendsPage() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [friendSearch, setFriendSearch] = useState("");
 
@@ -91,10 +86,7 @@ export default function FriendsPage() {
     isFetchingNextPage: fetchingFriends,
   });
 
-  const unfriendMutation = useMutation({
-    mutationFn: (userId: string) => friendshipsApi.unfriend(userId),
-    onError: () => queryClient.invalidateQueries({ queryKey: ["friends"] }),
-  });
+  const unfriendMutation = useUnfriendMutation();
 
   const requests = requestData?.pages.flatMap((p) => p.data) ?? [];
   const sent = sentData?.pages.flatMap((p) => p.data) ?? [];

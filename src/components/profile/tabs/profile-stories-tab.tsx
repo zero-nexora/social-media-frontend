@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Play, Trash2 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { storiesApi } from "../../../services/api-services";
 import { useInfiniteScroll } from "../../../hooks/use-infinite-scroll";
 import { StoryViewer } from "../../story/story-viewer";
@@ -17,6 +15,7 @@ import {
   AlertDialogTitle,
 } from "../../ui/alert-dialog";
 import type { FriendshipStatus, Story, StoryGroup } from "../../../types";
+import { useDeleteStoryMutation } from "../../../hooks/use-story-mutations";
 
 interface Props {
   userId: string;
@@ -105,7 +104,6 @@ export const ProfileStoriesTab = ({
   isOwn,
   friendshipStatus,
 }: Props) => {
-  const queryClient = useQueryClient();
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerInitIndex, setViewerInitIndex] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -156,14 +154,9 @@ export const ProfileStoriesTab = ({
         }
       : null;
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => storiesApi.delete(id),
-    onSuccess: () => {
-      toast.success("Đã xoá story");
-      queryClient.invalidateQueries({ queryKey: ["my-stories", userId] });
-      setDeleteTarget(null);
-    },
-    onError: () => toast.error("Xoá thất bại"),
+  const deleteStoryMutation = useDeleteStoryMutation({
+    userId,
+    onSuccess: () => setDeleteTarget(null),
   });
 
   const openViewer = (i: number) => {
@@ -225,9 +218,9 @@ export const ProfileStoriesTab = ({
               <AlertDialogAction
                 className="bg-destructive hover:bg-destructive/90"
                 onClick={() =>
-                  deleteTarget && deleteMutation.mutate(deleteTarget)
+                  deleteTarget && deleteStoryMutation.mutate(deleteTarget)
                 }
-                disabled={deleteMutation.isPending}
+                disabled={deleteStoryMutation.isPending}
               >
                 Xoá
               </AlertDialogAction>

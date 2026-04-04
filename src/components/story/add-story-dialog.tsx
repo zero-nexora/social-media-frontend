@@ -1,10 +1,8 @@
 import { useState, useRef } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { storiesApi } from "../../services/api-services";
-import { toast } from "sonner";
+import { useCreateStoryMutation } from "../../hooks/use-story-mutations";
 
 interface Props {
   open: boolean;
@@ -12,7 +10,6 @@ interface Props {
 }
 
 export const AddStoryDialog = ({ open, onClose }: Props) => {
-  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -30,14 +27,8 @@ export const AddStoryDialog = ({ open, onClose }: Props) => {
     onClose();
   };
 
-  const uploadMutation = useMutation({
-    mutationFn: () => storiesApi.create(file!, caption || undefined),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
-      toast.success("Đã đăng story");
-      handleClose();
-    },
-    onError: () => toast.error("Đăng story thất bại"),
+  const createStoryMutation = useCreateStoryMutation({
+    onSuccess: handleClose,
   });
 
   return (
@@ -108,10 +99,15 @@ export const AddStoryDialog = ({ open, onClose }: Props) => {
             Huỷ
           </Button>
           <Button
-            disabled={!file || uploadMutation.isPending}
-            onClick={() => uploadMutation.mutate()}
+            disabled={!file || createStoryMutation.isPending}
+            onClick={() =>
+              createStoryMutation.mutate({
+                file: file!,
+                caption: caption || undefined,
+              })
+            }
           >
-            {uploadMutation.isPending ? "Đang đăng..." : "Đăng story"}
+            {createStoryMutation.isPending ? "Đang đăng..." : "Đăng story"}
           </Button>
         </div>
       </DialogContent>

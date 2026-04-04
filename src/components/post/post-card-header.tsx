@@ -9,8 +9,6 @@ import {
   Trash2,
   EyeOff,
 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,9 +28,9 @@ import {
 } from "../ui/alert-dialog";
 import { UserAvatar } from "../shared/user-avatar";
 import { fromNow } from "../../lib/utils";
-import { postsApi } from "../../services/api-services";
 import { useAuth } from "../../hooks/use-auth";
 import type { Post, Privacy } from "../../types";
+import { useDeletePostMutation } from "../../hooks/use-post-mutations";
 
 const PRIVACY_ICON: Record<Privacy, React.ReactNode> = {
   PUBLIC: <Globe size={11} />,
@@ -49,19 +47,13 @@ interface Props {
 
 export const PostCardHeader = ({ post, onDelete, onEdit, onHide }: Props) => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const isOwn = user?.id === post.userId;
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const deleteMutation = useMutation({
-    mutationFn: () => postsApi.delete(post.id),
-    onSuccess: () => {
-      toast.success("Đã xoá bài viết");
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
-      queryClient.invalidateQueries({ queryKey: ["user-posts", post.userId] });
-      onDelete?.();
-    },
-    onError: () => toast.error("Xoá bài viết thất bại"),
+  const deletePostMutation = useDeletePostMutation({
+    postId: post.id,
+    userId: post.userId,
+    onSuccess: onDelete,
   });
 
   return (
@@ -135,11 +127,11 @@ export const PostCardHeader = ({ post, onDelete, onEdit, onHide }: Props) => {
               className="bg-destructive hover:bg-destructive/90"
               onClick={() => {
                 setDeleteOpen(false);
-                deleteMutation.mutate();
+                deletePostMutation.mutate();
               }}
-              disabled={deleteMutation.isPending}
+              disabled={deletePostMutation.isPending}
             >
-              {deleteMutation.isPending ? "Đang xoá..." : "Xoá"}
+              {deletePostMutation.isPending ? "Đang xoá..." : "Xoá"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

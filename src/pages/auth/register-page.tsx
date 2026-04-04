@@ -9,14 +9,13 @@ import { authApi } from "../../services/api-services";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { AuthLayout } from "../../components/layout/auth/auth-layout";
-import {
-  AuthCard,
-  AuthCardHeader,
-} from "../../components/shared/auth-card";
+import { AuthCard, AuthCardHeader } from "../../components/shared/auth-card";
 import { FormField } from "../../components/shared/form-field";
 import { PasswordInput } from "../../components/shared/password-input";
 import { PasswordStrengthBar } from "../../components/shared/password-strength-bar";
 import { GoogleButton } from "../../components/shared/google-button";
+import { getApiError } from "../../lib/get-api-error";
+import { toast } from "sonner";
 
 const schema = z
   .object({
@@ -109,9 +108,10 @@ export default function RegisterPage() {
       authApi.register(data),
     onSuccess: (_, variables) => setRegisteredEmail(variables.email),
     onError: (err: any) => {
-      const msg = err?.response?.data?.error?.message ?? "";
+      const msg = getApiError(err);
       if (msg.includes("Email")) setError("email", { message: msg });
       else if (msg.includes("Username")) setError("username", { message: msg });
+      else toast.error(msg);
     },
   });
 
@@ -129,6 +129,8 @@ export default function RegisterPage() {
         });
       }, 1000);
     },
+    onError: (err: any) =>
+      toast.error(getApiError(err, "Gửi email thất bại, thử lại sau")),
   });
 
   if (registeredEmail) {

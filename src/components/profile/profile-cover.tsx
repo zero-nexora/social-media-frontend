@@ -1,11 +1,8 @@
 import { useRef, useState } from "react";
 import { Camera } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { usersApi } from "../../services/api-services";
 import { BannerDefault } from "../shared/banner-default";
-import { useAuthStore } from "../../stores/auth-store";
 import { ImageLightbox } from "../shared/image-lightbox";
+import { useUpdateCoverMutation } from "../../hooks/use-user-mutations";
 
 interface Props {
   coverPhoto: string | null;
@@ -14,20 +11,10 @@ interface Props {
 }
 
 export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
-  const queryClient = useQueryClient();
-  const { updateUser } = useAuthStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const cover = useMutation({
-    mutationFn: (file: File) => usersApi.updateCover(file),
-    onSuccess: ({ coverUrl }) => {
-      updateUser({ coverPhoto: coverUrl });
-      queryClient.invalidateQueries({ queryKey: ["profile", username] });
-      toast.success("Đã cập nhật ảnh bìa");
-    },
-    onError: () => toast.error("Cập nhật thất bại"),
-  });
+  const updateCoverMutation = useUpdateCoverMutation(username);
 
   return (
     <>
@@ -52,11 +39,13 @@ export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
                 e.stopPropagation();
                 inputRef.current?.click();
               }}
-              disabled={cover.isPending}
+              disabled={updateCoverMutation.isPending}
               className="absolute top-3 right-3 flex items-center gap-1.5 bg-foreground/50 hover:bg-foreground/70 disabled:opacity-60 text-background text-xs px-3 py-1.5 rounded-full transition-colors backdrop-blur-sm z-10"
             >
               <Camera size={13} />
-              {cover.isPending ? "Đang tải..." : "Cập nhật ảnh bìa"}
+              {updateCoverMutation.isPending
+                ? "Đang tải..."
+                : "Cập nhật ảnh bìa"}
             </button>
             <input
               ref={inputRef}
@@ -64,7 +53,8 @@ export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
               accept="image/*"
               className="hidden"
               onChange={(e) =>
-                e.target.files?.[0] && cover.mutate(e.target.files[0])
+                e.target.files?.[0] &&
+                updateCoverMutation.mutate(e.target.files[0])
               }
             />
           </>

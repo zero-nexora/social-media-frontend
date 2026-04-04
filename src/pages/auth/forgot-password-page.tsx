@@ -13,6 +13,7 @@ import { AuthCard } from "../../components/shared/auth-card";
 import { FormField } from "../../components/shared/form-field";
 import { PasswordInput } from "../../components/shared/password-input";
 import { PasswordStrengthBar } from "../../components/shared/password-strength-bar";
+import { getApiError } from "../../lib/get-api-error";
 
 type Step = 1 | 2 | 3;
 const OTP_TTL = 15 * 60;
@@ -179,6 +180,7 @@ export default function ForgotPasswordPage() {
       setEmail(e);
       setStep(2);
     },
+    onError: (err: any) => toast.error(getApiError(err, "Gửi OTP thất bại")),
   });
 
   const verifyOtpMutation = useMutation({
@@ -188,7 +190,7 @@ export default function ForgotPasswordPage() {
       setStep(3);
     },
     onError: (err: any) => {
-      const msg = err?.response?.data?.error?.message ?? "Mã không đúng";
+      const msg = getApiError(err, "Mã không đúng");
       toast.error(msg);
       if (msg.includes("khoá") || msg.includes("5 lần")) setStep(1);
     },
@@ -218,8 +220,8 @@ export default function ForgotPasswordPage() {
       setTimeout(() => navigate("/login?reset=success"), 1200);
     },
     onError: (err: any) => {
-      const msg = err?.response?.data?.error?.message ?? "";
-      toast.error(msg || "Đặt lại mật khẩu thất bại");
+      const msg = getApiError(err, "Đặt lại mật khẩu thất bại");
+      toast.error(msg);
       if (msg.includes("hết hạn")) setStep(1);
     },
   });

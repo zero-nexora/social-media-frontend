@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Globe, Users, Lock } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import {
@@ -12,10 +10,10 @@ import {
   SelectValue,
 } from "../ui/select";
 import { PostEditor } from "./post-editor";
-import { postsApi } from "../../services/api-services";
 import type { Post, Privacy } from "../../types";
 import { cn, isVideo } from "../../lib/utils";
 import { VideoPlayer } from "../shared/video-player";
+import { useUpdatePostMutation } from "../../hooks/use-post-mutations";
 
 const PRIVACY_OPTIONS: {
   value: Privacy;
@@ -34,8 +32,6 @@ interface Props {
 }
 
 export const EditPostDialog = ({ post, open, onClose }: Props) => {
-  const queryClient = useQueryClient();
-
   const [html, setHtml] = useState(post.content ?? "");
   const [plainText, setPlainText] = useState("");
   const [privacy, setPrivacy] = useState<Privacy>(post.privacy);
@@ -55,36 +51,9 @@ export const EditPostDialog = ({ post, open, onClose }: Props) => {
     onClose();
   };
 
-  const update = useMutation({
-    mutationFn: () =>
-      postsApi.update(post.id, {
-        content: plainText.trim() ? html : undefined,
-        privacy,
-      }),
-    onSuccess: (updated) => {
-      toast.success("Đã cập nhật bài viết");
-
-      queryClient.setQueriesData<any>({ queryKey: ["feed"] }, (old: any) => {
-        if (!old?.pages) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            data: page.data.map((p: Post) =>
-              p.id === post.id ? { ...p, ...updated } : p,
-            ),
-          })),
-        };
-      });
-
-      queryClient.setQueryData<Post>(["post", post.id], (old) =>
-        old ? { ...old, ...updated } : old,
-      );
-
-      queryClient.invalidateQueries({ queryKey: ["user-posts", post.userId] });
-      handleClose();
-    },
-    onError: () => toast.error("Cập nhật thất bại"),
+  const updatePostMutation = useUpdatePostMutation({
+    post,
+    onSuccess: handleClose,
   });
 
   return (
@@ -139,10 +108,7 @@ export const EditPostDialog = ({ post, open, onClose }: Props) => {
                 )}
               >
                 {post.mediaUrls.map((url, i) => (
-                  <div
-                    key={url}
-                    className="overflow-hidden bg-muted"
-                  >
+                  <div key={url} className="overflow-hidden bg-muted">
                     {isVideo(url) ? (
                       <VideoPlayer src={url} />
                     ) : (
@@ -168,10 +134,12 @@ export const EditPostDialog = ({ post, open, onClose }: Props) => {
             Huỷ
           </Button>
           <Button
-            onClick={() => update.mutate()}
-            disabled={!isDirty || update.isPending}
+            onClick={() =>
+              updatePostMutation.mutate({ html, plainText, privacy })
+            }
+            disabled={!isDirty || updatePostMutation.isPending}
           >
-            {update.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+            {updatePostMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
           </Button>
         </div>
       </DialogContent>

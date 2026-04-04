@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, X } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { commentsApi } from "../../services/api-services";
 import { useAuth } from "../../hooks/use-auth";
 import { UserAvatar } from "../shared/user-avatar";
 import { cn } from "../../lib/utils";
+import { useCreateCommentMutation } from "../../hooks/use-comment-mutations";
 
 interface Props {
   postId: string;
@@ -20,7 +19,6 @@ export const CommentInput = ({
   focusRef,
 }: Props) => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const [content, setContent] = useState("");
   const internalRef = useRef<HTMLTextAreaElement>(null);
   const textareaRef = (focusRef ??
@@ -44,31 +42,19 @@ export const CommentInput = ({
     if (replyTo) setTimeout(() => textareaRef.current?.focus(), 50);
   }, [replyTo]);
 
-  const create = useMutation({
-    mutationFn: (text: string) =>
-      replyTo
-        ? commentsApi.createReply(replyTo.id, text)
-        : commentsApi.create(postId, text),
-    onSuccess: (_, _text) => {
+  const createCommentMutation = useCreateCommentMutation({
+    postId,
+    replyTo,
+    onSuccess: () => {
       setContent("");
-
-      if (replyTo) {
-        queryClient.invalidateQueries({ queryKey: ["replies", replyTo.id] });
-        queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-      } else {
-        queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-      }
-
-      queryClient.invalidateQueries({ queryKey: ["post", postId] });
-
       onCancelReply();
     },
   });
 
   const handleSubmit = () => {
     const text = content.trim();
-    if (!text || create.isPending) return;
-    create.mutate(text);
+    if (!text || createCommentMutation.isPending) return;
+    createCommentMutation.mutate(text);
   };
 
   if (!user) return null;
@@ -120,10 +106,10 @@ export const CommentInput = ({
         />
         <button
           onClick={handleSubmit}
-          disabled={!content.trim() || create.isPending}
+          disabled={!content.trim() || createCommentMutation.isPending}
           className={cn(
             "p-2 rounded-full transition-colors shrink-0 mb-0.5",
-            content.trim() && !create.isPending
+            content.trim() && !createCommentMutation.isPending
               ? "text-primary hover:bg-primary/10"
               : "text-muted-foreground cursor-not-allowed",
           )}

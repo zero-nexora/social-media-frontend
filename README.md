@@ -1,6 +1,14 @@
 # Nexora — Social Media Frontend
 
-A modern, full-featured social media web application built with React 19, Vite, and TailwindCSS v4. Nexora enables users to connect through posts, stories, real-time notifications, and a rich friend/follow system.
+> A modern, full-featured social media web application built with **React 19**, **Vite 8**, and **TailwindCSS v4**.
+
+Nexora lets users connect through posts, stories, real-time notifications, and a rich friend/follow system — all powered by a JWT + Socket.IO backend.
+
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=flat-square)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white&style=flat-square)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white&style=flat-square)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square)
+![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel&logoColor=white&style=flat-square)
 
 ---
 
@@ -26,67 +34,66 @@ A modern, full-featured social media web application built with React 19, Vite, 
 
 ### Authentication
 - Email/password registration with email verification
-- Login with JWT access tokens (stored in memory) and HTTP-only refresh token cookies
-- Google OAuth 2.0 login
-- Forgot password flow (email → OTP → reset)
-- Change password, deactivate account, and permanent account deletion
+- Login with JWT access tokens (stored in JS memory) and HTTP-only refresh token cookies
+- Google OAuth 2.0 login via backend redirect
+- Forgot password flow: email → OTP code → reset password
+- Change password, deactivate account (re-activates on next login), and permanent account deletion
 
 ### Feed
-- Infinite-scroll post feed from friends and followed users
-- Real-time "new posts available" banner without full reload
-- Create posts with text (Quill rich-text editor), images, and videos
+- Infinite-scroll post feed from friends and followed users (cursor-based pagination)
+- Real-time "new posts available" banner — alerts without a full reload
+- Create posts with rich text (Quill v2 editor), images, and videos
 - Post privacy controls: `PUBLIC`, `FRIENDS`, `ONLY_ME`
 - AI-powered caption generation for uploaded images (Vietnamese / English)
 - Edit and delete your own posts
 
 ### Posts & Reactions
-- Facebook-style emoji reactions: 👍 LIKE, ❤️ LOVE, 😂 HAHA, 😮 WOW, 😢 SAD, 😡 ANGRY
-- Reaction picker with hold-to-expand and per-user reaction summary modal
-- Threaded comments with replies, edit, and delete
-- Image lightbox for full-screen media viewing
+- Facebook-style emoji reactions: 👍 LIKE · ❤️ LOVE · 😂 HAHA · 😮 WOW · 😢 SAD · 😡 ANGRY
+- Reaction picker with hover-to-expand and a per-user reaction summary modal
+- Threaded comments with infinite scroll, replies, edit, and delete
+- Image lightbox for full-screen media viewing with keyboard navigation
 - Video playback via Vidstack
 
 ### Stories
-- 24-hour ephemeral stories (image or video)
-- Stories bar on the feed with unread indicators
-- Full-screen story viewer with auto-progress per story
-- Story view count and viewer list (story author only)
-- Real-time story creation/deletion events
+- 24-hour ephemeral stories (image or video with optional caption)
+- Horizontal stories bar on the feed with unread ring indicators
+- Full-screen story viewer with auto-progress per story segment
+- View count and viewer list visible to the story author only
+- Real-time story creation/deletion events via Socket.IO
 
 ### Friends & Social Graph
 - Send, accept, reject, and cancel friend requests
 - Unfriend, block, and unblock users
 - Friend suggestions based on mutual connections
-- Follow/unfollow independently of friendship
+- Follow/unfollow independently of friendship status
 - Real-time friend request and acceptance events
-- Online/offline presence indicators
+- Online/offline presence indicators throughout the UI
 
 ### Notifications
-- Real-time in-app notifications via Socket.IO
-- Types: friend request, friend accepted, post reaction, post comment, comment reply, new follower, new post
-- Mark individual or all notifications as read
-- Unread badge count on the navbar
+- Real-time in-app notifications powered by Socket.IO
+- Types: `FRIEND_REQUEST` · `FRIEND_ACCEPTED` · `POST_REACT` · `POST_COMMENT` · `COMMENT_REPLY` · `NEW_FOLLOWER` · `NEW_POST`
+- Mark individual notifications or all as read
+- Unread badge count on the navbar icon
 
 ### User Profiles
-- Profile page with cover photo, avatar, bio, friends/followers/following counts
-- Edit avatar and cover photo (uploaded to Cloudinary)
-- View user's posts in a paginated grid
-- Dynamic profile action buttons based on friendship/follow status
+- Profile page with cover photo, avatar, bio, and friends/followers/following counts
+- Edit avatar and cover photo (uploaded directly to Cloudinary)
+- View a user's posts, photos, friends, followers, following, and stories in a tabbed layout
+- Dynamic action buttons based on friendship and follow status
 
 ### Settings
 - Update username and bio
-- Email verification status with resend flow
-- Change password with strength indicator
-- Google OAuth account indicator (no password needed)
-- Deactivate account (re-activates on next login)
-- Permanent account deletion with confirmation
+- Email verification status with resend-verification flow
+- Change password with a live strength indicator
+- Google OAuth account indicator (no password required for OAuth accounts)
+- Deactivate account or permanently delete account with confirmation dialog
 
 ### UX Extras
-- Light/dark/system theme toggle (next-themes)
+- Light / dark / system theme toggle (`next-themes`)
 - Debounced user search in the navbar
 - Skeleton loading states throughout
-- Toast notifications (Sonner) with rich colors
-- Fully responsive layout with left and right sidebars collapsing on mobile
+- Toast notifications via Sonner with rich colors
+- Fully responsive three-column layout — sidebars collapse gracefully on mobile
 
 ---
 
@@ -97,22 +104,23 @@ A modern, full-featured social media web application built with React 19, Vite, 
 | Framework | [React 19](https://react.dev/) |
 | Build Tool | [Vite 8](https://vite.dev/) |
 | Language | [TypeScript 5.9](https://www.typescriptlang.org/) |
-| Styling | [TailwindCSS v4](https://tailwindcss.com/) (via `@tailwindcss/vite`) |
-| UI Components | [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/) |
+| Styling | [TailwindCSS v4](https://tailwindcss.com/) via `@tailwindcss/vite` |
+| Animations | [tw-animate-css](https://github.com/jamiebuilds/tailwindcss-animate) |
+| UI Components | [shadcn/ui](https://ui.shadcn.com/) (radix-nova style) + [Radix UI](https://www.radix-ui.com/) |
 | Icons | [Lucide React](https://lucide.dev/) |
 | Routing | [React Router DOM v7](https://reactrouter.com/) |
-| Server State | [TanStack Query v5](https://tanstack.com/query) |
+| Server State | [TanStack Query v5](https://tanstack.com/query) + Devtools |
 | Client State | [Zustand v5](https://zustand-demo.pmnd.rs/) |
-| HTTP Client | [Axios](https://axios-http.com/) with interceptors for auth & token refresh |
-| Forms | [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) |
+| HTTP Client | [Axios](https://axios-http.com/) with interceptors for auth & silent token refresh |
+| Forms | [React Hook Form v7](https://react-hook-form.com/) + [@hookform/resolvers](https://github.com/react-hook-form/resolvers) + [Zod v4](https://zod.dev/) |
 | Real-time | [Socket.IO Client v4](https://socket.io/) |
-| Media Upload | [Cloudinary](https://cloudinary.com/) (unsigned upload) |
+| Media Upload | [Cloudinary](https://cloudinary.com/) (unsigned upload preset, direct browser → CDN) |
 | Video Player | [Vidstack React](https://www.vidstack.io/) |
 | Rich Text | [Quill v2](https://quilljs.com/) |
 | Toast | [Sonner](https://sonner.emilkowal.ski/) |
 | Date | [Day.js](https://day.js.org/) |
 | Theme | [next-themes](https://github.com/pacocoursey/next-themes) |
-| Font | [Geist Variable](https://vercel.com/font) |
+| Font | [Geist Variable](https://vercel.com/font) via `@fontsource-variable/geist` |
 | Linting | ESLint 9 + typescript-eslint |
 | Deployment | [Vercel](https://vercel.com/) |
 
@@ -122,71 +130,79 @@ A modern, full-featured social media web application built with React 19, Vite, 
 
 ```
 frontend/
-├── public/                     # Static assets
+├── public/                       # Static assets served as-is
 ├── src/
-│   ├── assets/                 # Static imports (SVGs, images)
+│   ├── assets/                   # Static imports (SVGs, images)
 │   ├── components/
-│   │   ├── comment/            # Comment thread components
-│   │   ├── friend/             # Friend request, suggestion, and friend cards
-│   │   ├── layout/             # App shell: MainLayout, Navbar, Left/Right sidebars
-│   │   │   └── auth/           # Auth layout wrapper
-│   │   ├── notification/       # Notification list items
-│   │   ├── post/               # Post cards, editor, dialogs, reaction picker
-│   │   ├── profile/            # Profile header, edit dialogs, post grid
-│   │   ├── shared/             # Reusable primitives (Avatar, Lightbox, Skeleton…)
-│   │   ├── story/              # Stories bar, viewer, add/view dialogs
-│   │   ├── ui/                 # shadcn/ui base components
-│   │   ├── mode-toggle.tsx     # Light/dark/system theme switcher
-│   │   ├── theme-context.ts    # Theme React context
-│   │   └── theme-provider.tsx  # next-themes wrapper
+│   │   ├── comment/              # Comment thread components
+│   │   ├── friend/               # Friend request, suggestion, and friend cards
+│   │   ├── layout/               # App shell: MainLayout, Navbar, Left/Right sidebars
+│   │   │   └── auth/             # Auth layout wrapper
+│   │   ├── notification/         # Notification list items & dropdown preview
+│   │   ├── post/                 # Post cards, editor, dialogs, reaction picker
+│   │   ├── profile/              # Profile header, edit dialogs, tabbed post grid
+│   │   ├── shared/               # Reusable primitives (Avatar, Lightbox, Skeletons…)
+│   │   ├── story/                # Stories bar, viewer, add/view dialogs
+│   │   ├── ui/                   # shadcn/ui base components
+│   │   ├── mode-toggle.tsx       # Light / dark / system theme switch button
+│   │   ├── theme-context.ts      # Theme React context definition
+│   │   └── theme-provider.tsx    # next-themes provider wrapper
 │   ├── hooks/
-│   │   ├── use-auth.ts         # Convenience hook over auth store
-│   │   ├── use-bootstrap.ts    # Session restore on app startup
-│   │   ├── use-cloudinary-upload.ts  # Multi-file upload with progress
-│   │   ├── use-debounce.ts     # Generic debounce hook
-│   │   ├── use-feed-new-posts.ts     # Socket-driven "new posts" banner
-│   │   ├── use-generate-caption.ts   # AI caption generation hook
-│   │   ├── use-infinite-scroll.ts    # IntersectionObserver-based scroll hook
-│   │   ├── use-presence.ts     # Subscribe to user online/offline presence
-│   │   └── use-socket.ts       # Socket.IO connection + event listeners
+│   │   ├── use-auth.ts                 # Convenience hook over auth store
+│   │   ├── use-auth-mutations.ts       # Login, register, logout, password mutations
+│   │   ├── use-bootstrap.ts            # Session restore on app startup
+│   │   ├── use-cloudinary-upload.ts    # Multi-file upload with per-file progress
+│   │   ├── use-comment-mutations.ts    # Create, edit, delete comments/replies
+│   │   ├── use-debounce.ts             # Generic value debounce hook
+│   │   ├── use-feed-new-posts.ts       # Socket-driven "new posts" banner logic
+│   │   ├── use-follow-mutations.ts     # Follow / unfollow mutations
+│   │   ├── use-friendship-mutations.ts # Send, accept, reject, cancel, block requests
+│   │   ├── use-generate-caption.ts     # AI image caption generation hook
+│   │   ├── use-infinite-scroll.ts      # IntersectionObserver → fetchNextPage
+│   │   ├── use-notification-mutations.ts # Mark read, mark all read, delete
+│   │   ├── use-post-mutations.ts       # Create, update, delete posts
+│   │   ├── use-presence.ts             # Batch-query online/offline presence
+│   │   ├── use-socket.ts               # Socket.IO connection + all event listeners
+│   │   ├── use-story-mutations.ts      # Create and delete stories
+│   │   └── use-user-mutations.ts       # Update profile, avatar, cover, deactivate
 │   ├── lib/
-│   │   ├── query-client.ts     # TanStack Query client instance
-│   │   └── utils.ts            # cn(), formatters, password strength, etc.
+│   │   ├── query-client.ts       # TanStack Query client singleton
+│   │   └── utils.ts              # cn(), formatters, password strength helpers, etc.
 │   ├── pages/
-│   │   ├── auth/               # Login, Register, VerifyEmail, ForgotPassword
-│   │   ├── oauth/              # OAuth callback handler
-│   │   ├── feed-page.tsx       # Main feed
-│   │   ├── friends-page.tsx    # Friend requests, sent, suggestions, all friends
-│   │   ├── landing-page.tsx    # Marketing landing page (guest only)
-│   │   ├── not-found-page.tsx  # 404 page
+│   │   ├── auth/                 # LoginPage, RegisterPage, VerifyEmailPage, ForgotPasswordPage
+│   │   ├── oauth/                # OAuthCallbackPage — handles Google redirect
+│   │   ├── feed-page.tsx
+│   │   ├── friends-page.tsx      # Tabs: requests, sent, suggestions, all friends
+│   │   ├── landing-page.tsx      # Marketing page shown to guests
+│   │   ├── not-found-page.tsx
 │   │   ├── notifications-page.tsx
-│   │   ├── post-detail-page.tsx
+│   │   ├── post-detail-page.tsx  # Full post view with real-time comment events
 │   │   ├── profile-page.tsx
 │   │   └── settings-page.tsx
 │   ├── services/
-│   │   ├── api.ts              # Axios instance + 401 auto-refresh interceptor
-│   │   └── api-services.ts     # Domain-grouped API call functions
+│   │   ├── api.ts                # Axios instance + 401 auto-refresh interceptor
+│   │   └── api-services.ts       # All API functions grouped by domain
 │   ├── stores/
-│   │   ├── auth-store.ts       # user, accessToken, isAuthenticated
-│   │   ├── notification-store.ts  # unread count, friend request count, notification list
-│   │   ├── presence-store.ts   # Set of online user IDs
-│   │   └── socket-store.ts     # Socket.IO instance + connect/disconnect
-│   ├── styles/                 # Additional global styles
+│   │   ├── auth-store.ts         # user, accessToken, isAuthenticated
+│   │   ├── notification-store.ts # unreadCount, friendRequestCount, notifications[]
+│   │   ├── presence-store.ts     # Set of currently online user IDs
+│   │   └── socket-store.ts       # Socket.IO instance + connect/disconnect
+│   ├── styles/                   # Additional global CSS (Quill overrides, etc.)
 │   ├── types/
-│   │   └── index.ts            # All shared TypeScript types and interfaces
-│   ├── App.tsx                 # Root: providers, router, routes
-│   ├── index.css               # Tailwind directives + CSS variables
-│   └── main.tsx                # React DOM entry point
-├── .env.example                # Required environment variables template
-├── components.json             # shadcn/ui configuration
+│   │   └── index.ts              # All shared TypeScript interfaces and types
+│   ├── App.tsx                   # Root: providers, router, AppBootstrap, all routes
+│   ├── index.css                 # Tailwind directives + oklch CSS variables
+│   └── main.tsx                  # React DOM entry point
+├── .env.example                  # Required environment variables template
+├── components.json               # shadcn/ui configuration
 ├── eslint.config.js
 ├── index.html
 ├── package.json
 ├── tsconfig.app.json
 ├── tsconfig.json
 ├── tsconfig.node.json
-├── vercel.json                 # SPA rewrite rule for Vercel
-└── vite.config.ts              # Vite config: React, Tailwind, path alias, dev proxy
+├── vercel.json                   # SPA rewrite rule for Vercel
+└── vite.config.ts                # Vite: React + Tailwind plugins, @ alias, dev proxy
 ```
 
 ---
@@ -202,14 +218,15 @@ frontend/
 | `/forgot-password` | `ForgotPasswordPage` | Guest only |
 | `/oauth/callback` | `OAuthCallbackPage` | Public |
 | `/feed` | `FeedPage` | Protected |
-| `/profile/:username` | `ProfilePage` | Protected |
+| `/profile/:id` | `ProfilePage` | Protected |
 | `/friends` | `FriendsPage` | Protected |
 | `/notifications` | `NotificationsPage` | Protected |
 | `/posts/:id` | `PostDetailPage` | Protected |
 | `/settings` | `SettingsPage` | Protected |
 | `*` | `NotFoundPage` | Public |
 
-Protected routes are wrapped in `<ProtectedRoute>` which redirects unauthenticated users to `/login`. Guest-only routes are wrapped in `<GuestRoute>` which redirects authenticated users to `/feed`.
+- **`<ProtectedRoute>`** — Redirects unauthenticated users to `/login`, preserving the intended destination in `location.state.from`.
+- **`<GuestRoute>`** — Redirects already-authenticated users to `/feed`.
 
 ---
 
@@ -222,25 +239,27 @@ Protected routes are wrapped in `<ProtectedRoute>` which redirects unauthenticat
 │  ThemeProvider → QueryClientProvider → BrowserRouter            │
 │              └─ AppBootstrap (session restore + socket init)    │
 │                                                                 │
-│  ┌────────────────────────────────────────────────────────────┐ │
-│  │  Pages (routes)                                            │ │
-│  │  └─ Components (layout, post, story, friend, profile…)    │ │
-│  └────────────────────────────────────────────────────────────┘ │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  Pages (routes)                                          │   │
+│  │  └─ Components (layout, post, story, friend, profile…)  │   │
+│  └──────────────────────────────────────────────────────────┘   │
 │                                                                 │
-│  ┌──────────────┐  ┌──────────────────┐  ┌───────────────────┐ │
-│  │   Zustand    │  │  TanStack Query  │  │    Socket.IO      │ │
-│  │  (auth,      │  │  (server state,  │  │  (real-time       │ │
-│  │  presence,   │  │   caching,       │  │   events,         │ │
-│  │  notifs,     │  │   pagination)    │  │   presence)       │ │
-│  │  socket)     │  └──────────────────┘  └───────────────────┘ │
-│  └──────────────┘                                              │
+│  ┌──────────────┐  ┌──────────────────┐  ┌───────────────────┐  │
+│  │   Zustand    │  │  TanStack Query  │  │    Socket.IO      │  │
+│  │  auth        │  │  server cache    │  │  real-time events │  │
+│  │  presence    │  │  infinite pages  │  │  presence sync    │  │
+│  │  notifs      │  │  optimistic UI   │  │  notifications    │  │
+│  │  socket ref  │  └──────────────────┘  └───────────────────┘  │
+│  └──────────────┘                                               │
 │                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  Axios (api.ts)                                           │  │
-│  │  • Attaches Bearer token on every request                 │  │
-│  │  • Auto-refreshes on 401 (queues concurrent requests)     │  │
-│  │  • Dev proxy: /api → localhost:3000                       │  │
-│  └──────────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  Axios (api.ts)                                          │   │
+│  │  • Attaches Authorization: Bearer <token> on every req   │   │
+│  │  • On 401 → silent refresh via /auth/refresh (cookie)    │   │
+│  │  • Queues concurrent requests during refresh, replays    │   │
+│  │  • Refresh failure → logout() + redirect to /login       │   │
+│  │  • Dev proxy: /api → http://localhost:3000               │   │
+│  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -257,8 +276,8 @@ Protected routes are wrapped in `<ProtectedRoute>` which redirects unauthenticat
 
 - **Node.js** ≥ 18
 - **npm** ≥ 9
-- A running backend API server (see backend README)
-- A [Cloudinary](https://cloudinary.com/) account (free tier is fine)
+- A running instance of the backend API (see [backend README](../backend/README.md))
+- A [Cloudinary](https://cloudinary.com/) account (free tier is sufficient)
 
 ### Installation
 
@@ -274,22 +293,22 @@ npm install
 ### Development
 
 ```bash
-# Copy environment template and fill in your values
+# Copy the environment template and fill in your values
 cp .env.example .env
 
-# Start the dev server (http://localhost:5173)
+# Start the dev server at http://localhost:5173
 npm run dev
 ```
 
-The Vite dev server proxies all `/api` requests to `http://localhost:3000`, so CORS is transparently handled during local development.
+> The Vite dev server proxies every `/api` request to `http://localhost:3000`, so CORS is handled transparently during local development — no browser extension or backend CORS change needed.
 
-### Build for Production
+### Production Build
 
 ```bash
 npm run build
 ```
 
-Output is in `/dist`. Preview the production build locally:
+Output is written to `/dist`. Preview the production bundle locally:
 
 ```bash
 npm run preview
@@ -305,98 +324,108 @@ npm run lint
 
 ## Environment Variables
 
-Create a `.env` file in the project root (copy from `.env.example`):
+Copy `.env.example` to `.env` in the project root and fill in the values:
 
 ```env
-# Full URL to your backend REST API (including /api prefix)
+# Full URL to the backend REST API (must include /api prefix)
 VITE_API_URL=http://localhost:3000/api
 
-# Backend URL used for Socket.IO connection
+# Backend URL used for the Socket.IO connection
 VITE_SOCKET_URL=http://localhost:3000
 
-# Cloudinary cloud name (e.g. "my-cloud")
+# Cloudinary cloud name (found in your Cloudinary dashboard)
 VITE_CLOUDINARY_CLOUD_NAME=
 
 # Cloudinary unsigned upload preset name
 VITE_CLOUDINARY_UPLOAD_PRESET=
 ```
 
-> **Note:** All variables are prefixed with `VITE_` so that Vite exposes them to the browser. Never put secrets here.
+> **Note:** All variables are prefixed with `VITE_` so Vite exposes them to the browser bundle. **Never store secrets here** — these values are visible in the compiled output.
 
 ---
 
 ## API Integration
 
-All API calls are defined in `src/services/api-services.ts`, grouped by domain:
+All API calls live in `src/services/api-services.ts`, grouped by domain:
 
-| Export | Description |
+| Export | Endpoints covered |
 |---|---|
-| `authApi` | Register, login, logout, refresh, verify email, OTP, reset/change password |
-| `usersApi` | Get / update current user, avatar, cover photo, deactivate, delete |
-| `postsApi` | Create, CRUD feed posts, user posts |
-| `commentsApi` | Create/edit/delete comments and replies |
-| `reactionsApi` | Toggle reaction, list reactors, reaction summary |
-| `friendshipsApi` | Send/accept/reject/cancel request, unfriend, block/unblock, suggestions |
-| `followersApi` | Follow/unfollow, get followers/following |
-| `notificationsApi` | List, mark read/all-read, delete |
-| `storiesApi` | Create, feed, mine, active, record view, viewers, delete |
-| `aiApi` | Generate image captions (Vietnamese / English) |
-| `bootstrapApi` | Internal — used only by `useBootstrap` on app load |
+| `authApi` | Register, verify email, resend verification, login, logout, refresh token, forgot password, verify OTP, reset password, change password |
+| `usersApi` | Get/update current user, update avatar, update cover photo, deactivate, delete account, get profile by ID or username, search users |
+| `postsApi` | Create post, get feed (paginated), get by ID, update, delete, get user posts |
+| `commentsApi` | Create comment/reply, list comments, list replies, update, delete |
+| `reactionsApi` | Toggle reaction, list reactors (filterable by type), get summary, get my reaction |
+| `friendshipsApi` | Send/accept/reject/cancel request, unfriend, block/unblock, get requests/sent/friends list, get status, get suggestions |
+| `followersApi` | Follow/unfollow, get followers list, get following list, get follow status |
+| `notificationsApi` | List (filterable by unread), get unread count, mark read, mark all read, delete |
+| `storiesApi` | Create story, get feed groups, get mine, get active by user, record view, get viewers, delete |
+| `aiApi` | Generate image captions (`vi` or `en`) |
+| `bootstrapApi` | Internal — called only by `useBootstrap` on initial app load to restore session |
 
-The Axios instance in `src/services/api.ts` automatically:
-1. Attaches the in-memory `accessToken` as a `Bearer` header on every request.
-2. On a `401` response, silently refreshes the token via the `/auth/refresh` endpoint (using the HTTP-only cookie).
-3. Queues any concurrent requests that arrived while refreshing and replays them with the new token.
-4. If refresh fails, clears auth state and redirects to `/login`.
+### Axios Interceptor Behaviour
+
+The instance in `src/services/api.ts` automatically:
+
+1. Attaches `Authorization: Bearer <accessToken>` on every outgoing request.
+2. On a `401` response, silently calls `POST /auth/refresh` using the HTTP-only cookie.
+3. Queues all concurrent requests that arrived during the refresh and replays them with the new token.
+4. If the refresh itself fails, clears all auth state and redirects to `/login`.
+
+Auth endpoints under `/auth/` are excluded from the 401-retry loop to prevent infinite refresh cycles.
 
 ---
 
 ## Real-time (Socket.IO)
 
-The `useSocket` hook (mounted once in `AppBootstrap`) manages a single Socket.IO connection authenticated with the access token.
+The `useSocket` hook is mounted once inside `AppBootstrap` and maintains a single authenticated connection. The socket authenticates using the current access token passed as a query parameter.
 
-### Events Handled
+### Socket Events
 
-| Socket Event | Action |
+| Event | Handler action |
 |---|---|
-| `new_notification` | Adds notification to store, increments unread badge, shows toast |
-| `friend_request` | Increments friend-request badge, invalidates caches |
-| `friend_request_cancelled` | Decrements badge, invalidates caches |
-| `friend_accepted` | Invalidates friends, feed, profile, stories caches |
-| `friend_unfriended` | Invalidates friends, feed, profile caches |
+| `new_notification` | Appends to notification store, increments unread badge, shows toast |
+| `friend_request` | Increments friend-request badge, invalidates request list cache |
+| `friend_request_cancelled` | Decrements badge, invalidates cache |
+| `friend_accepted` | Invalidates friends, feed, profile, and stories caches |
+| `friend_unfriended` | Invalidates friends, feed, and profile caches |
 | `story:new` | Invalidates stories feed, shows toast |
 | `story:deleted` | Invalidates stories feed |
-| `user:online` | Marks user as online in presence store |
-| `user:offline` | Marks user as offline in presence store |
+| `user:online` | Adds user ID to presence store |
+| `user:offline` | Removes user ID from presence store |
+
+On disconnect or connection error, the presence store is cleared to avoid stale online indicators.
 
 ---
 
 ## State Management
 
-Zustand stores are kept intentionally thin — they hold only state that must be shared across many components and doesn't belong in the server cache.
+Zustand stores are intentionally kept thin — they hold only cross-cutting state that doesn't belong in the server cache:
 
-| Store | Contents |
+| Store | State held |
 |---|---|
-| `auth-store` | `user`, `accessToken`, `isAuthenticated` + setters |
+| `auth-store` | `user`, `accessToken` (in-memory only), `isAuthenticated` |
 | `notification-store` | `unreadCount`, `friendRequestCount`, latest `notifications[]` |
 | `presence-store` | `Set<userId>` of currently online users |
-| `socket-store` | Socket.IO `socket` instance + `connect`/`disconnect` |
+| `socket-store` | Socket.IO `socket` instance + `connect` / `disconnect` methods |
 
-Server data (posts, friends, profiles, etc.) lives exclusively in **TanStack Query** to benefit from caching, background refetching, and pagination.
+All server data — posts, comments, friends, profiles, stories — lives exclusively in **TanStack Query** to benefit from automatic caching, background re-fetching, cache invalidation, and cursor-based infinite pagination.
+
+> **Security note:** The access token is never written to `localStorage` or cookies — it lives only in Zustand (JS memory). The refresh token is stored in an `HttpOnly` cookie, making it inaccessible to JavaScript and protecting against XSS token theft.
 
 ---
 
 ## Media Uploads (Cloudinary)
 
-The `useCloudinaryUpload` hook provides a complete multi-file upload pipeline:
+The `useCloudinaryUpload` hook provides a complete multi-file upload pipeline that bypasses the backend entirely:
 
-- Accepts images (≤ 50 MB each) and videos (≤ 100 MB each), up to **10 files** per post
-- Uploads concurrently with per-file `XMLHttpRequest` progress tracking
-- Deduplicates files by name + size
-- Cleans up `URL.createObjectURL` blobs on removal or reset
-- Returns status: `idle | uploading | done | error` per file
+- Accepts **images** (≤ 50 MB) and **videos** (≤ 100 MB), up to **10 files** per post
+- Uses `XMLHttpRequest` for real per-file upload progress tracking
+- Uploads all files concurrently via `Promise.all`
+- Deduplicates files by name + size to prevent accidental double-uploads
+- Automatically revokes `URL.createObjectURL` blobs on file removal or hook reset
+- Returns a typed status per file: `idle | uploading | done | error`
 
-The hook uploads directly to Cloudinary from the browser using an **unsigned upload preset**, meaning no files pass through the backend server.
+Files are uploaded directly from the browser to Cloudinary using an **unsigned upload preset**, meaning no binary data passes through your backend server.
 
 ---
 
@@ -405,37 +434,37 @@ The hook uploads directly to Cloudinary from the browser using an **unsigned upl
 ```
 App Load
   └─ useBootstrap()
-       ├─ POST /auth/refresh (cookie) → accessToken
-       ├─ GET  /users/me              → user
-       ├─ GET  /notifications/unread-count
-       ├─ GET  /friendships/requests  (count)
-       └─ setReady(true)
+       ├─ POST /auth/refresh  (HTTP-only cookie) → accessToken
+       ├─ GET  /users/me                          → user object
+       ├─ GET  /notifications/unread-count        → unread badge
+       ├─ GET  /friendships/requests?limit=1      → friend request badge
+       └─ setReady(true) → render children
 
-Login / Register
+Email / Password Login
   └─ POST /auth/login → { accessToken, user }
-       └─ setAuth(user, accessToken) → authStore
+       └─ setAuth(user, accessToken) → authStore → navigate /feed
 
 Google OAuth
-  └─ Redirect → backend OAuth handler
-       └─ Redirect back to /oauth/callback?token=…
-            └─ Parse token → setAuth → navigate to /feed
+  └─ Browser redirects to backend OAuth handler
+       └─ Backend redirects to /oauth/callback?token=…
+            └─ Parse token → setAuth → navigate /feed
 
 Logout
-  └─ POST /auth/logout (clears cookie on server)
-       └─ authStore.logout() → redirect to /login
+  └─ POST /auth/logout  (server clears the refresh token cookie)
+       └─ authStore.logout() → redirect /login
 
-Token Refresh (silent, background)
-  └─ Any request returns 401
+Silent Token Refresh (background, transparent)
+  └─ Any non-auth request returns 401
        └─ Axios interceptor → POST /auth/refresh
-            ├─ Success: replay original + queued requests
-            └─ Failure: logout() + redirect /login
+            ├─ Success: set new token, replay original + queued requests
+            └─ Failure: authStore.logout() + redirect /login
 ```
 
 ---
 
 ## Deployment (Vercel)
 
-The project is pre-configured for Vercel with `vercel.json`:
+The project ships with a `vercel.json` that handles SPA client-side routing:
 
 ```json
 {
@@ -443,14 +472,12 @@ The project is pre-configured for Vercel with `vercel.json`:
 }
 ```
 
-This ensures client-side routing works correctly for all paths (SPA rewrite).
+### Deploy Steps
 
-### Steps
+1. Push your code to GitHub.
+2. Import the repository in the [Vercel dashboard](https://vercel.com/).
+3. If this is a monorepo, set the **Root Directory** to `frontend`.
+4. Add all four environment variables in **Project → Settings → Environment Variables**.
+5. Click **Deploy** — Vercel auto-detects Vite and runs `npm run build`.
 
-1. Push to GitHub.
-2. Import the repository in [Vercel](https://vercel.com/).
-3. Set the **Root Directory** to `frontend` (if this is a monorepo).
-4. Add all four environment variables in the Vercel dashboard.
-5. Deploy — Vercel auto-detects Vite and runs `npm run build`.
-
-> **CORS:** In production, make sure your backend sets `Access-Control-Allow-Origin` to your Vercel domain and allows credentials.
+> **CORS in production:** Ensure your backend sets `Access-Control-Allow-Origin` to your Vercel deployment URL and includes `Access-Control-Allow-Credentials: true` so that the HTTP-only refresh token cookie is sent cross-origin.

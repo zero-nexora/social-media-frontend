@@ -155,7 +155,6 @@ export const ProfileStoriesTab = ({
       : null;
 
   const deleteStoryMutation = useDeleteStoryMutation({
-    userId,
     onSuccess: () => setDeleteTarget(null),
   });
 

@@ -34,7 +34,7 @@ const SuggestionItem = ({
 
       <div className="flex-1 min-w-0">
         <Link
-          to={`/profile/${user.username}`}
+          to={`/profile/${user.id}`}
           className="text-sm font-medium truncate block hover:underline"
         >
           {user.username}

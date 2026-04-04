@@ -111,7 +111,9 @@ export const useSocket = () => {
         queryKey: ["profile", payload.sender.id],
       });
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
-      queryClient.invalidateQueries({ queryKey: ["friend-suggestions-sidebar"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-suggestions-sidebar"],
+      });
     };
 
     const onFriendUnfriended = (_payload: SocketFriendUnfriendedPayload) => {
@@ -121,7 +123,9 @@ export const useSocket = () => {
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
-      queryClient.invalidateQueries({ queryKey: ["friend-suggestions-sidebar"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-suggestions-sidebar"],
+      });
     };
 
     const onStoryNew = (payload: SocketStoryNewPayload) => {

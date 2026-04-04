@@ -21,10 +21,8 @@ export const useCreateStoryMutation = ({
 };
 
 export const useDeleteStoryMutation = ({
-  userId,
   onSuccess,
 }: {
-  userId?: string;
   onSuccess?: () => void;
 }) => {
   const qc = useQueryClient();
@@ -34,7 +32,7 @@ export const useDeleteStoryMutation = ({
     onSuccess: () => {
       toast.success("Đã xoá story");
       qc.invalidateQueries({ queryKey: ["stories-feed"] });
-      if (userId) qc.invalidateQueries({ queryKey: ["my-stories", userId] });
+      qc.invalidateQueries({ queryKey: ["my-stories"] });
       onSuccess?.();
     },
     onError: (err) => toast.error(getApiError(err, "Xoá story thất bại")),

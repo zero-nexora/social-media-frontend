@@ -52,9 +52,10 @@ export const useCancelRequestMutation = ({
     onSuccess: () => {
       toast.info(`Đã huỷ lời mời gửi đến ${profile.username}`);
       qc.invalidateQueries({ queryKey: ["friendship-sent"] });
-      onSuccess?.();
+      qc.invalidateQueries({ queryKey: ["profile", profile.id] });
       qc.invalidateQueries({ queryKey: ["friend-suggestions"] });
       qc.invalidateQueries({ queryKey: ["friend-suggestions-sidebar"] });
+      onSuccess?.();
     },
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
   });
@@ -77,6 +78,7 @@ export const useAcceptRequestMutation = ({
       toast.success("Đã chấp nhận lời mời");
       qc.invalidateQueries({ queryKey: ["friendship-requests"] });
       qc.invalidateQueries({ queryKey: ["friends"] });
+      qc.invalidateQueries({ queryKey: ["friends", senderId] });
       qc.invalidateQueries({ queryKey: ["feed"] });
       qc.invalidateQueries({ queryKey: ["stories-feed"] });
       onSuccess?.();
@@ -126,6 +128,7 @@ export const useBlockMutation = ({
       qc.invalidateQueries({ queryKey: ["friends"] });
       qc.invalidateQueries({ queryKey: ["friend-suggestions"] });
       qc.invalidateQueries({ queryKey: ["friend-suggestions-sidebar"] });
+      qc.invalidateQueries({ queryKey: ["friends", profileId] });
       onSuccess?.();
     },
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
@@ -149,6 +152,7 @@ export const useUnblockMutation = ({
       qc.invalidateQueries({ queryKey: ["friends"] });
       qc.invalidateQueries({ queryKey: ["friend-suggestions"] });
       qc.invalidateQueries({ queryKey: ["friend-suggestions-sidebar"] });
+      qc.invalidateQueries({ queryKey: ["friends", profileId] });
       onSuccess?.();
     },
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),

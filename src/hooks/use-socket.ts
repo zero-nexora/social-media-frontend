@@ -83,16 +83,16 @@ export const useSocket = () => {
         queryKey: ["friend-suggestions-sidebar"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["profile", payload.sender.username],
+        queryKey: ["profile", payload.sender.id],
       });
     };
 
     const onFriendAccepted = (payload: SocketFriendAcceptedPayload) => {
       queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       queryClient.invalidateQueries({
-        queryKey: ["profile", payload.accepter.username],
+        queryKey: ["profile", payload.accepter.id],
       });
       queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
@@ -108,16 +108,20 @@ export const useSocket = () => {
       decrementFriendRequest();
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
       queryClient.invalidateQueries({
-        queryKey: ["profile", payload.sender.username],
+        queryKey: ["profile", payload.sender.id],
       });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions-sidebar"] });
     };
 
     const onFriendUnfriended = (_payload: SocketFriendUnfriendedPayload) => {
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["feed"] });
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions-sidebar"] });
     };
 
     const onStoryNew = (payload: SocketStoryNewPayload) => {

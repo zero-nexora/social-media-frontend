@@ -48,7 +48,7 @@ export const StoryViewersDialog = ({ storyId, open, onClose }: Props) => {
           {data?.viewers.map(({ user, viewedAt }) => (
             <Link
               key={user.id}
-              to={`/profile/${user.username}`}
+              to={`/profile/${user.id}`}
               onClick={onClose}
               className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors"
             >

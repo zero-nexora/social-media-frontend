@@ -92,7 +92,7 @@ export const Navbar = () => {
                   <button
                     key={u.id}
                     onClick={() => {
-                      navigate(`/profile/${u.username}`);
+                      navigate(`/profile/${u.id}`);
                       setSearchOpen(false);
                       setSearchQuery("");
                     }}
@@ -149,7 +149,7 @@ export const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
-                  onClick={() => navigate(`/profile/${user.username}`)}
+                  onClick={() => navigate(`/profile/${user.id}`)}
                 >
                   Trang cá nhân
                 </DropdownMenuItem>

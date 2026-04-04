@@ -7,14 +7,14 @@ import { useUpdateCoverMutation } from "../../hooks/use-user-mutations";
 interface Props {
   coverPhoto: string | null;
   isOwn: boolean;
-  username: string;
+  id: string;
 }
 
-export const ProfileCover = ({ coverPhoto, isOwn, username }: Props) => {
+export const ProfileCover = ({ coverPhoto, isOwn, id }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const updateCoverMutation = useUpdateCoverMutation(username);
+  const updateCoverMutation = useUpdateCoverMutation(id);
 
   return (
     <>

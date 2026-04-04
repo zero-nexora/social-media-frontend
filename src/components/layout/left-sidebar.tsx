@@ -31,7 +31,7 @@ export const LeftSidebar = () => {
   const location = useLocation();
   const { unreadCount, friendRequestCount } = useNotificationStore();
 
-  const profilePath = `/profile/${user?.username}`;
+  const profilePath = `/profile/${user?.id}`;
 
   const isActive = (path: string) =>
     location.pathname === (path === "/profile" ? profilePath : path);

@@ -1,39 +1,79 @@
 import { useState } from "react";
 import { X, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { friendshipsApi } from "../../services/api-services";
 import { usePresence } from "../../hooks/use-presence";
 import { UserAvatar } from "../shared/user-avatar";
 import { OnlineBadge } from "../shared/online-badge";
 import { Button } from "../ui/button";
 import type { FriendSuggestion } from "../../types";
-import { toast } from "sonner";
+import { useSendRequestMutation } from "../../hooks/use-friendship-mutations";
+
+const SuggestionItem = ({
+  suggestion,
+  onDismiss,
+}: {
+  suggestion: FriendSuggestion;
+  onDismiss: (id: string) => void;
+}) => {
+  const { user, mutualCount } = suggestion;
+
+  const sendRequest = useSendRequestMutation({ profile: user });
+
+  return (
+    <div className="flex items-center gap-2.5 group px-1">
+      <div className="relative shrink-0">
+        <UserAvatar user={user} size="sm" />
+        <OnlineBadge
+          userId={user.id}
+          size="sm"
+          className="absolute -bottom-0.5 -right-0.5"
+        />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <Link
+          to={`/profile/${user.username}`}
+          className="text-sm font-medium truncate block hover:underline"
+        >
+          {user.username}
+        </Link>
+        {mutualCount > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {mutualCount} bạn chung
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-1">
+        <Button
+          size="sm"
+          variant={sendRequest.isSuccess ? "secondary" : "default"}
+          className="h-7 px-2 text-xs"
+          disabled={sendRequest.isSuccess || sendRequest.isPending}
+          onClick={() => sendRequest.mutate()}
+        >
+          {sendRequest.isSuccess ? "Đã gửi" : <UserPlus size={13} />}
+        </Button>
+
+        <button
+          onClick={() => onDismiss(user.id)}
+          className="p-1 rounded-lg hover:bg-muted text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <X size={13} />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export const RightSidebar = () => {
-  const queryClient = useQueryClient();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
-  const [sent, setSent] = useState<Set<string>>(new Set());
 
   const { data: suggestions = [] } = useQuery({
     queryKey: ["friend-suggestions-sidebar"],
     queryFn: () => friendshipsApi.getSuggestions(5),
-  });
-
-  const sendRequest = useMutation({
-    mutationFn: (userId: string) => friendshipsApi.sendRequest(userId),
-    onSuccess: (_, userId) => {
-      const user = suggestions.find((s) => s.user.id === userId)?.user;
-      toast.info(`Đã gửi lời mời đến ${user?.username || "người dùng"}`);
-      setSent((prev) => new Set(prev).add(userId));
-      queryClient.invalidateQueries({
-        queryKey: ["friend-suggestions-sidebar"],
-      });
-      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
-      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.username] });
-    },
-    onError: () => toast.error("Gửi lời mời thất bại"),
   });
 
   const visible = (suggestions as FriendSuggestion[]).filter(
@@ -51,51 +91,11 @@ export const RightSidebar = () => {
       </h3>
 
       {visible.map((s) => (
-        <div key={s.user.id} className="flex items-center gap-2.5 group px-1">
-          <div className="relative shrink-0">
-            <UserAvatar user={s.user} size="sm" />
-            <OnlineBadge
-              userId={s.user.id}
-              size="sm"
-              className="absolute -bottom-0.5 -right-0.5"
-            />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <Link
-              to={`/profile/${s.user.username}`}
-              className="text-sm font-medium truncate block hover:underline"
-            >
-              {s.user.username}
-            </Link>
-            {s.mutualCount > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {s.mutualCount} bạn chung
-              </p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1">
-            <Button
-              size="sm"
-              variant={sent.has(s.user.id) ? "secondary" : "default"}
-              className="h-7 px-2 text-xs"
-              disabled={sent.has(s.user.id) || sendRequest.isPending}
-              onClick={() => sendRequest.mutate(s.user.id)}
-            >
-              {sent.has(s.user.id) ? "Đã gửi" : <UserPlus size={13} />}
-            </Button>
-
-            <button
-              onClick={() =>
-                setDismissed((prev) => new Set(prev).add(s.user.id))
-              }
-              className="p-1 rounded-lg hover:bg-muted text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <X size={13} />
-            </button>
-          </div>
-        </div>
+        <SuggestionItem
+          key={s.user.id}
+          suggestion={s}
+          onDismiss={(id) => setDismissed((prev) => new Set(prev).add(id))}
+        />
       ))}
     </div>
   );

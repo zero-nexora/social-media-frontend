@@ -85,7 +85,7 @@ const ReactionList = ({ postId, type }: ListProps) => {
       {items.map((reaction: Reaction) => (
         <Link
           key={reaction.id}
-          to={`/profile/${reaction.user?.username}`}
+          to={`/profile/${reaction.user.id}`}
           className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
         >
           <div className="relative shrink-0">

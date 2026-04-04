@@ -53,7 +53,7 @@ export const FriendRequestCard = ({
 
       <div className="flex-1 min-w-0">
         <Link
-          to={`/profile/${sender.username}`}
+          to={`/profile/${sender.id}`}
           className="font-semibold text-sm hover:underline"
         >
           {sender.username}
@@ -109,7 +109,7 @@ export const FriendSuggestionCard = ({
 
       <div className="flex-1 min-w-0">
         <Link
-          to={`/profile/${user.username}`}
+          to={`/profile/${user.id}`}
           className="font-semibold text-sm hover:underline"
         >
           {user.username}
@@ -175,7 +175,7 @@ export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
 
       <div className="flex-1 min-w-0">
         <Link
-          to={`/profile/${receiver.username}`}
+          to={`/profile/${receiver.id}`}
           className="font-semibold text-sm hover:underline"
         >
           {receiver.username}
@@ -221,7 +221,7 @@ export const FriendCard = ({
 
       <div className="flex-1 min-w-0">
         <Link
-          to={`/profile/${friend.username}`}
+          to={`/profile/${friend.id}`}
           className="font-semibold text-sm hover:underline block truncate"
         >
           {friend.username}

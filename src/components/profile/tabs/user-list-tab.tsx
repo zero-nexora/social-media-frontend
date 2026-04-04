@@ -21,7 +21,7 @@ interface Props {
 function UserListItem({ user, subtext }: { user: User; subtext: string }) {
   return (
     <Link
-      to={`/profile/${user.username}`}
+      to={`/profile/${user.id}`}
       className="flex items-center gap-3 p-3 bg-card border rounded-xl hover:bg-muted/40 transition-colors"
     >
       <UserAvatar user={user} size="md" />

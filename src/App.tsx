@@ -97,7 +97,7 @@ export default function App() {
                 }
               >
                 <Route path="/feed" element={<FeedPage />} />
-                <Route path="/profile/:username" element={<ProfilePage />} />
+                <Route path="/profile/:id" element={<ProfilePage />} />
                 <Route path="/friends" element={<FriendsPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/posts/:id" element={<PostDetailPage />} />

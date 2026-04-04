@@ -48,7 +48,7 @@ export const ProfileInfo = ({
 
   usePresence(isOwn ? [] : [profile.id]);
 
-  const updateAvatarMutation = useUpdateAvatarMutation(profile.username);
+  const updateAvatarMutation = useUpdateAvatarMutation(profile.id);
 
   const editProfileMutation = useEditProfileMutation({
     profile,

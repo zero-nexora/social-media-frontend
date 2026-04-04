@@ -60,12 +60,12 @@ export const PostCardHeader = ({ post, onDelete, onEdit, onHide }: Props) => {
     <>
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2.5">
-          <Link to={`/profile/${post.user.username}`}>
+          <Link to={`/profile/${post.user.id}`}>
             <UserAvatar user={post.user} size="md" />
           </Link>
           <div>
             <Link
-              to={`/profile/${post.user.username}`}
+              to={`/profile/${post.user.id}`}
               className="font-semibold text-sm hover:underline leading-tight block"
             >
               {post.user.username}

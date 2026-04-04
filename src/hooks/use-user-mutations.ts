@@ -16,7 +16,6 @@ export const useEditProfileMutation = ({
   onSuccess?: () => void;
 }) => {
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const { updateUser } = useAuthStore();
 
   return useMutation({
@@ -27,16 +26,9 @@ export const useEditProfileMutation = ({
         bio: data.bio !== (profile.bio ?? "") ? data.bio : undefined,
       }),
     onSuccess: (updatedUser) => {
-      const usernameChanged = updatedUser.username !== profile.username;
       updateUser({ username: updatedUser.username, bio: updatedUser.bio });
-      qc.removeQueries({ queryKey: ["profile", profile.username] });
-
-      if (usernameChanged) {
-        navigate(`/profile/${updatedUser.username}`, { replace: true });
-      } else {
-        qc.invalidateQueries({ queryKey: ["profile", profile.username] });
-        onSuccess?.();
-      }
+      qc.invalidateQueries({ queryKey: ["profile", profile.id] });
+      onSuccess?.();
       toast.success("Đã cập nhật thông tin");
     },
     onError: (err) => {
@@ -78,7 +70,7 @@ export const useDeleteAccountMutation = () => {
   });
 };
 
-export const useUpdateAvatarMutation = (username: string) => {
+export const useUpdateAvatarMutation = (id: string) => {
   const qc = useQueryClient();
   const { updateUser } = useAuthStore();
 
@@ -86,14 +78,14 @@ export const useUpdateAvatarMutation = (username: string) => {
     mutationFn: (file: File) => usersApi.updateAvatar(file),
     onSuccess: ({ avatarUrl }) => {
       updateUser({ avatar: avatarUrl });
-      qc.invalidateQueries({ queryKey: ["profile", username] });
+      qc.invalidateQueries({ queryKey: ["profile", id] });
       toast.success("Đã cập nhật ảnh đại diện");
     },
     onError: (err) => toast.error(getApiError(err, "Cập nhật thất bại")),
   });
 };
 
-export const useUpdateCoverMutation = (username: string) => {
+export const useUpdateCoverMutation = (id: string) => {
   const qc = useQueryClient();
   const { updateUser } = useAuthStore();
 
@@ -101,7 +93,7 @@ export const useUpdateCoverMutation = (username: string) => {
     mutationFn: (file: File) => usersApi.updateCover(file),
     onSuccess: ({ coverUrl }) => {
       updateUser({ coverPhoto: coverUrl });
-      qc.invalidateQueries({ queryKey: ["profile", username] });
+      qc.invalidateQueries({ queryKey: ["profile", id] });
       toast.success("Đã cập nhật ảnh bìa");
     },
     onError: (err) => toast.error(getApiError(err, "Cập nhật thất bại")),

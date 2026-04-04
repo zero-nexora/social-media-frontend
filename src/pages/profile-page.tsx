@@ -18,13 +18,13 @@ function ProfileSkeleton() {
 }
 
 export default function ProfilePage() {
-  const { username } = useParams<{ username: string }>();
+  const { id } = useParams<{ id: string }>();
   const { user: me } = useAuth();
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["profile", username],
-    queryFn: () => usersApi.getByUsername(username ?? ""),
-    enabled: !!username,
+    queryKey: ["profile", id],
+    queryFn: () => usersApi.getProfile(id ?? ""),
+    enabled: !!id,
   });
 
   if (isLoading) return <ProfileSkeleton />;
@@ -34,7 +34,7 @@ export default function ProfilePage() {
       <div className="text-center py-20 space-y-1">
         <p className="text-foreground font-medium">Không tìm thấy người dùng</p>
         <p className="text-sm text-muted-foreground">
-          @{username} không tồn tại hoặc đã bị xoá.
+          @{data?.user?.username || "Người dùng"} không tồn tại hoặc đã bị xoá.
         </p>
       </div>
     );
@@ -48,7 +48,7 @@ export default function ProfilePage() {
       <ProfileCover
         coverPhoto={profile.coverPhoto}
         isOwn={isOwn}
-        username={profile.username}
+        id={profile.id}
       />
       <ProfileInfo
         profile={profile}

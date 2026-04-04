@@ -136,7 +136,7 @@ export const PASSWORD_STRENGTH_LABEL: Record<PasswordStrength, string> = {
 };
 
 // ─── URL helpers ──────────────────────────────────────────
-export const getProfileUrl = (username: string) => `/profile/${username}`;
+export const getProfileUrl = (id: string) => `/profile/${id}`;
 export const getPostUrl = (postId: string) => `/posts/${postId}`;
 
 /** Navigate target based on notification type + specific FK fields */
@@ -145,7 +145,7 @@ export const getNotifTarget = (notif: {
   postId: string | null;
   commentId: string | null;
   friendshipId: string | null;
-  fromUser: { username: string };
+  fromUser: { id: string };
 }): string => {
   if (
     notif.type === "POST_REACT" ||
@@ -157,7 +157,7 @@ export const getNotifTarget = (notif: {
   if (notif.type === "COMMENT_REPLY") {
     return notif.postId ? getPostUrl(notif.postId) : "/notifications";
   }
-  return getProfileUrl(notif.fromUser.username);
+  return getProfileUrl(notif.fromUser.id);
 };
 
 // ─── Array utils ──────────────────────────────────────────

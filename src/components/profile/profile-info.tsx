@@ -119,6 +119,7 @@ export const ProfileInfo = ({
                   type="file"
                   accept="image/*"
                   className="hidden"
+                  onClick={(e) => e.stopPropagation()} 
                   onChange={(e) =>
                     e.target.files?.[0] &&
                     updateAvatarMutation.mutate(e.target.files[0])
@@ -134,10 +135,7 @@ export const ProfileInfo = ({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openEdit();
-                }}
+                onClick={() => openEdit()}
               >
                 Chỉnh sửa trang cá nhân
               </Button>

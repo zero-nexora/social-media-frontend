@@ -107,6 +107,7 @@ export const useSocket = () => {
     ) => {
       decrementFriendRequest();
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
       queryClient.invalidateQueries({
         queryKey: ["profile", payload.sender.id],
       });

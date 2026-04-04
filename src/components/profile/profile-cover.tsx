@@ -52,6 +52,7 @@ export const ProfileCover = ({ coverPhoto, isOwn, id }: Props) => {
               type="file"
               accept="image/*"
               className="hidden"
+              onClick={(e) => e.stopPropagation()}
               onChange={(e) =>
                 e.target.files?.[0] &&
                 updateCoverMutation.mutate(e.target.files[0])

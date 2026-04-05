@@ -14,6 +14,7 @@ import type {
   SocketFriendUnfriendedPayload,
   SocketStoryNewPayload,
   SocketStoryDeletedPayload,
+  SocketFriendRequestRejectedPayload,
 } from "../types";
 
 export const useSocket = () => {
@@ -107,9 +108,21 @@ export const useSocket = () => {
     ) => {
       decrementFriendRequest();
       queryClient.invalidateQueries({ queryKey: ["friendship-requests"] });
-      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
       queryClient.invalidateQueries({
         queryKey: ["profile", payload.sender.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-suggestions-sidebar"],
+      });
+    };
+
+    const onFriendRequestRejected = (
+      payload: SocketFriendRequestRejectedPayload,
+    ) => {
+      queryClient.invalidateQueries({ queryKey: ["friendship-sent"] });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.receiver.id],
       });
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
       queryClient.invalidateQueries({
@@ -153,6 +166,7 @@ export const useSocket = () => {
     socket.on("story:deleted", onStoryDeleted);
     socket.on("friend_request", onFriendRequest);
     socket.on("friend_request_cancelled", onFriendRequestCancelled);
+    socket.on("friend_request_rejected", onFriendRequestRejected);
     socket.on("friend_unfriended", onFriendUnfriended);
     socket.on("friend_accepted", onFriendAccepted);
     socket.on("user:online", onUserOnline);
@@ -164,6 +178,7 @@ export const useSocket = () => {
       socket.off("story:deleted", onStoryDeleted);
       socket.off("friend_request", onFriendRequest);
       socket.off("friend_request_cancelled", onFriendRequestCancelled);
+      socket.off("friend_request_rejected", onFriendRequestRejected);
       socket.off("friend_accepted", onFriendAccepted);
       socket.off("friend_unfriended", onFriendUnfriended);
       socket.off("user:online", onUserOnline);

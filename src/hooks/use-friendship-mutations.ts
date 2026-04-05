@@ -105,6 +105,7 @@ export const useRejectRequestMutation = ({
       qc.invalidateQueries({ queryKey: ["friendship-requests"] });
       qc.invalidateQueries({ queryKey: ["friend-suggestions"] });
       qc.invalidateQueries({ queryKey: ["friend-suggestions-sidebar"] });
+      qc.invalidateQueries({ queryKey: ["profile", senderId] });
       onSuccess?.();
     },
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),

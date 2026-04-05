@@ -235,3 +235,7 @@ export interface SocketStoryDeletedPayload {
   storyId: string;
   userId: string;
 }
+
+export interface SocketFriendRequestRejectedPayload {
+  receiver: UserBasic;
+}

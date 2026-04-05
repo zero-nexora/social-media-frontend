@@ -161,6 +161,7 @@ export const StoryViewer = ({
     queryKey: ["story-viewers", currentStory?.id],
     queryFn: () => storiesApi.getViewers(currentStory!.id),
     enabled: isOwn && !!currentStory?.id,
+    refetchInterval: !isOwn || !currentStory?.id ? false : 5000,
   });
 
   const deleteStoryMutation = useDeleteStoryMutation({

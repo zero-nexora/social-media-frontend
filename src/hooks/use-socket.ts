@@ -130,11 +130,16 @@ export const useSocket = () => {
       });
     };
 
-    const onFriendUnfriended = (_payload: SocketFriendUnfriendedPayload) => {
+    const onFriendUnfriended = (payload: SocketFriendUnfriendedPayload) => {
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["friends", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["feed"] });
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.targetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.userId],
+      });
       queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
       queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
       queryClient.invalidateQueries({

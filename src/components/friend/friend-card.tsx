@@ -31,6 +31,7 @@ export const FriendRequestCard = ({
 }) => {
   const sender = friendship.sender!;
   const [handled, setHandled] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
 
   const acceptRequestMutation = useAcceptRequestMutation({
     senderId: sender.id,
@@ -79,12 +80,32 @@ export const FriendRequestCard = ({
         <Button
           size="sm"
           variant="outline"
-          onClick={() => rejectRequestMutation.mutate()}
+          onClick={() => setRejectOpen(true)}
           disabled={rejectRequestMutation.isPending}
         >
           <X size={14} className="mr-1" /> Xoá
         </Button>
       </div>
+
+      <AlertDialog open={rejectOpen} onOpenChange={setRejectOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Từ chối lời mời?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn sẽ không trở thành bạn bè với {sender.username}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Huỷ</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              onClick={() => rejectRequestMutation.mutate()}
+            >
+              Xác nhận
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
@@ -155,6 +176,7 @@ export const FriendSuggestionCard = ({
 export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
   const receiver = friendship.receiver!;
   const [cancelled, setCancelled] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   const cancelRequestMutation = useCancelRequestMutation({
     profile: receiver,
@@ -189,12 +211,32 @@ export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
       <Button
         size="sm"
         variant="outline"
-        onClick={() => cancelRequestMutation.mutate()}
+        onClick={() => setCancelOpen(true)}
         disabled={cancelRequestMutation.isPending}
         className="shrink-0"
       >
         {cancelRequestMutation.isPending ? "Đang huỷ..." : "Huỷ lời mời"}
       </Button>
+
+      <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Huỷ lời mời?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn sẽ không gửi lời mời kết bạn đến {receiver.username}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Huỷ</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              onClick={() => cancelRequestMutation.mutate()}
+            >
+              Xác nhận
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

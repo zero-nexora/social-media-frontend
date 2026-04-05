@@ -49,6 +49,8 @@ export const FriendshipButton = ({
   const [unfriendOpen, setUnfriendOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
   const [unBlockOpen, setUnblockOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   const sendRequestMutation = useSendRequestMutation({
     profile,
@@ -96,18 +98,40 @@ export const FriendshipButton = ({
 
   if (status === "pending_sent") {
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="secondary">
-            <Clock size={14} className="mr-1.5" /> Đã gửi lời mời
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => cancelRequestMutation.mutate()}>
-            Huỷ lời mời
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="secondary">
+              <Clock size={14} className="mr-1.5" /> Đã gửi lời mời
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setCancelOpen(true)}>
+              Huỷ lời mời
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Huỷ lời mời?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn sẽ không gửi lời mời kết bạn đến {profile.username}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Huỷ</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive hover:bg-destructive/90"
+                onClick={() => cancelRequestMutation.mutate()}
+              >
+                Xác nhận
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   }
 
@@ -124,11 +148,31 @@ export const FriendshipButton = ({
         <Button
           size="sm"
           variant="outline"
-          onClick={() => rejectRequestMutation.mutate()}
+          onClick={() => setRejectOpen(true)}
           disabled={rejectRequestMutation.isPending}
         >
           Xoá
         </Button>
+
+        <AlertDialog open={rejectOpen} onOpenChange={setRejectOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Từ chối lời mời?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn sẽ không trở thành bạn bè với {profile.username}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Huỷ</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive hover:bg-destructive/90"
+                onClick={() => rejectRequestMutation.mutate()}
+              >
+                Xác nhận
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }

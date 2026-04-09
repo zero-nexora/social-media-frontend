@@ -93,10 +93,10 @@ const ReactionList = ({ postId, type }: ListProps) => {
               <img
                 src={reaction.user.avatar}
                 alt={reaction.user.username}
-                className="w-9 h-9 rounded-full object-cover"
+                className="w-8 h-8 rounded-full object-cover"
               />
             ) : (
-              <AvatarDefault />
+              <AvatarDefault size="small" />
             )}
             <span className="absolute -bottom-0.5 -right-0.5 text-xs leading-none">
               {REACTION_EMOJI[reaction.type]}

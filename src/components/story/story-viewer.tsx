@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, Trash2, Eye, ChevronLeft } from "lucide-react";
+import { X, Trash2, Eye, ChevronLeft, VolumeX, Volume2 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { storiesApi } from "../../services/api-services";
 import { useAuth } from "../../hooks/use-auth";
@@ -47,6 +47,7 @@ export const StoryViewer = ({
   const [viewersOpen, setViewersOpen] = useState(false);
   const [paused, setPaused] = useState(false);
   const [deleteStotyOpen, setDeleteStoryOpen] = useState(false);
+  const [muted, setMuted] = useState(true);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const goNextRef = useRef<() => void>(() => {});
@@ -198,6 +199,15 @@ export const StoryViewer = ({
                 {fromNow(currentStory.createdAt)}
               </p>
             </div>
+            {currentStory.mediaType === "VIDEO" && (
+              <button
+                className="text-white p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                onClick={() => setMuted((m) => !m)}
+                title={muted ? "Bật tiếng" : "Tắt tiếng"}
+              >
+                {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              </button>
+            )}
             {isOwn && (
               <button
                 className="text-white p-1.5 hover:bg-white/20 rounded-full transition-colors"
@@ -223,7 +233,7 @@ export const StoryViewer = ({
               src={currentStory.mediaUrl}
               className="w-full h-full object-contain"
               autoPlay
-              muted
+              muted={muted}
               playsInline
               onLoadedMetadata={(e) => {
                 const dur = e.currentTarget.duration;

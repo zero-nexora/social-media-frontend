@@ -99,7 +99,7 @@ export default function PostDetailPage() {
     );
 
     queryClient.setQueriesData<InfiniteData<PaginatedResponse<Post>>>(
-      { queryKey: ["user-posts"] },
+      { queryKey: ["user-posts", me?.id] },
       (old) => {
         if (!old) return old;
         return {
@@ -166,6 +166,20 @@ export default function PostDetailPage() {
           };
         },
       );
+      queryClient.setQueriesData<InfiniteData<PaginatedResponse<Comment>>>(
+        { queryKey: ["user-posts", me?.id] },
+        (old) => {
+          if (!old) return old;
+          const lastPage = old.pages[old.pages.length - 1];
+          return {
+            ...old,
+            pages: [
+              ...old.pages.slice(0, -1),
+              { ...lastPage, data: [...lastPage.data, comment] },
+            ],
+          };
+        },
+      );
       patchPost({ commentsCount: (post?.commentsCount ?? 0) + 1 });
     };
 
@@ -219,7 +233,6 @@ export default function PostDetailPage() {
       socket.off("post:comment_updated", onCommentUpdated);
       socket.off("post:comment_deleted", onCommentDeleted);
       socket.off("post:comments_count", onCommentsCount);
-      socket.off("post:reaction", onReaction);
     };
   }, [socket, id, post?.commentsCount, me?.id]); // eslint-disable-line
 

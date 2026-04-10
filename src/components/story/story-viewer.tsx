@@ -51,6 +51,7 @@ export const StoryViewer = ({
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const goNextRef = useRef<() => void>(() => {});
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const currentGroup = groups[groupIdx];
   const currentStory = currentGroup?.stories[storyIdx];
@@ -90,10 +91,8 @@ export const StoryViewer = ({
 
   useEffect(() => {
     if (!open || !currentStory || !isOwn || !socket) return;
-
     socket.emit("join_story", currentStory.id);
     socket.on("story:viewed", onStoryViewed);
-
     return () => {
       socket.emit("leave_story", currentStory.id);
       socket.off("story:viewed", onStoryViewed);
@@ -139,8 +138,10 @@ export const StoryViewer = ({
   useEffect(() => {
     if (!open || paused || viewersOpen || !mediaReady) {
       clearTimer();
+      if (videoRef.current) videoRef.current.pause();
       return;
     }
+    if (videoRef.current) videoRef.current.play().catch(() => null);
     const t = setTimeout(() => startTimer(), 0);
     return () => {
       clearTimeout(t);
@@ -192,16 +193,16 @@ export const StoryViewer = ({
           <div className="absolute top-6 left-0 right-0 z-10 flex items-center gap-2 px-3 py-2">
             <UserAvatar user={currentGroup.user} size="sm" />
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium leading-none">
+              <p className="text-white text-sm font-medium leading-none drop-shadow-md">
                 {currentGroup.user.username}
               </p>
-              <p className="text-white/60 text-xs mt-0.5">
+              <p className="text-white/80 text-xs mt-0.5 drop-shadow-md">
                 {fromNow(currentStory.createdAt)}
               </p>
             </div>
             {currentStory.mediaType === "VIDEO" && (
               <button
-                className="text-white p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                className="text-white p-1.5 rounded-full transition-colors bg-black/40 hover:bg-black/60 backdrop-blur-sm shadow"
                 onClick={() => setMuted((m) => !m)}
                 title={muted ? "Bật tiếng" : "Tắt tiếng"}
               >
@@ -210,7 +211,7 @@ export const StoryViewer = ({
             )}
             {isOwn && (
               <button
-                className="text-white p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                className="text-white p-1.5 rounded-full transition-colors bg-black/40 hover:bg-black/60 backdrop-blur-sm shadow"
                 onClick={() => setDeleteStoryOpen(true)}
                 disabled={deleteStoryMutation.isPending}
                 title="Xoá story"
@@ -219,7 +220,7 @@ export const StoryViewer = ({
               </button>
             )}
             <button
-              className="text-background p-1.5 hover:bg-background/20 rounded-full transition-colors"
+              className="text-white p-1.5 rounded-full transition-colors bg-black/40 hover:bg-black/60 backdrop-blur-sm shadow"
               onClick={onClose}
               title="Đóng"
             >
@@ -229,6 +230,7 @@ export const StoryViewer = ({
 
           {currentStory.mediaType === "VIDEO" ? (
             <video
+              ref={videoRef}
               key={currentStory.id}
               src={currentStory.mediaUrl}
               className="w-full h-full object-contain"

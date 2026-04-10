@@ -52,6 +52,7 @@ export const StoryViewer = ({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const goNextRef = useRef<() => void>(() => {});
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const progressRef = useRef(0);
 
   const currentGroup = groups[groupIdx];
   const currentStory = currentGroup?.stories[storyIdx];
@@ -122,7 +123,6 @@ export const StoryViewer = ({
 
   const startTimer = useCallback(() => {
     clearTimer();
-    setProgress(0);
     intervalRef.current = setInterval(() => {
       setProgress((p) => {
         const next = p + (TICK / videoDurationRef.current) * 100;
@@ -141,7 +141,14 @@ export const StoryViewer = ({
       if (videoRef.current) videoRef.current.pause();
       return;
     }
-    if (videoRef.current) videoRef.current.play().catch(() => null);
+    if (videoRef.current) {
+      const elapsed = (progressRef.current / 100) * videoDurationRef.current;
+      if (videoRef.current.currentTime !== undefined && elapsed > 0) {
+        videoRef.current.currentTime = elapsed / 1000;
+      }
+      videoRef.current.play().catch(() => null);
+    }
+
     const t = setTimeout(() => startTimer(), 0);
     return () => {
       clearTimeout(t);

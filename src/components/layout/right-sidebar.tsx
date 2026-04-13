@@ -3,9 +3,7 @@ import { X, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { friendshipsApi } from "../../services/api-services";
-import { usePresence } from "../../hooks/use-presence";
 import { UserAvatar } from "../shared/user-avatar";
-import { OnlineBadge } from "../shared/online-badge";
 import { Button } from "../ui/button";
 import type { FriendSuggestion } from "../../types";
 import { useSendRequestMutation } from "../../hooks/use-friendship-mutations";
@@ -25,11 +23,6 @@ const SuggestionItem = ({
     <div className="flex items-center gap-2.5 group px-1">
       <div className="relative shrink-0">
         <UserAvatar user={user} size="sm" />
-        <OnlineBadge
-          userId={user.id}
-          size="sm"
-          className="absolute -bottom-0.5 -right-0.5"
-        />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -79,8 +72,6 @@ export const RightSidebar = () => {
   const visible = (suggestions as FriendSuggestion[]).filter(
     (s) => !dismissed.has(s.user.id),
   );
-
-  usePresence(visible.map((s) => s.user.id));
 
   if (visible.length === 0) return null;
 

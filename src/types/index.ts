@@ -239,3 +239,46 @@ export interface SocketStoryDeletedPayload {
 export interface SocketFriendRequestRejectedPayload {
   receiver: UserBasic;
 }
+
+export interface PostReactionPayload {
+  postId: string;
+  userId: string;
+  action: "created" | "deleted" | "updated";
+  reactionType: ReactionType | null;
+  likesCount: number;
+}
+
+export interface PostUpdatedPayload {
+  postId: string;
+  content: string | null;
+  privacy: string;
+  updatedAt: string;
+}
+export interface PostDeletedPayload {
+  postId: string;
+}
+export interface NewCommentPayload {
+  postId: string;
+  comment: Comment;
+}
+export interface NewReplyPayload {
+  postId: string;
+  commentId: string;
+  reply: Comment;
+}
+export interface CommentUpdatedPayload {
+  postId: string;
+  commentId: string;
+  content: string;
+  parentId: string | null;
+}
+export interface CommentDeletedPayload {
+  postId: string;
+  commentId: string;
+  parentId: string | null;
+  decrementBy: number;
+}
+export interface CommentsCountPayload {
+  postId: string;
+  commentsCount: number;
+}

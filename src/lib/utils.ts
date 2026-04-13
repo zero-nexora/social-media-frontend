@@ -150,13 +150,12 @@ export const getNotifTarget = (notif: {
   if (
     notif.type === "POST_REACT" ||
     notif.type === "POST_COMMENT" ||
-    notif.type === "NEW_POST"
+    notif.type === "NEW_POST" ||
+    notif.type === "COMMENT_REPLY"
   ) {
     return getPostUrl(notif.postId ?? "");
   }
-  if (notif.type === "COMMENT_REPLY") {
-    return notif.postId ? getPostUrl(notif.postId) : "/notifications";
-  }
+
   return getProfileUrl(notif.fromUser.id);
 };
 
@@ -192,4 +191,3 @@ export const isImageFile = (file: File): boolean =>
 
 export const isVideoFile = (file: File): boolean =>
   file.type.startsWith("video/");
-

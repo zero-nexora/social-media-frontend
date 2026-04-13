@@ -1,3 +1,4 @@
+// hooks/use-post-mutations.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { InfiniteData } from "@tanstack/react-query";
@@ -67,5 +68,50 @@ export const useUpdatePostMutation = ({
       onSuccess?.();
     },
     onError: (err) => toast.error(getApiError(err, "Cập nhật thất bại")),
+  });
+};
+
+export const useCreatePostMutation = ({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+} = {}) => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: {
+      html: string;
+      plainText: string;
+      privacy: Privacy;
+      mediaUrls: string[];
+    }) =>
+      postsApi.create({
+        content: data.plainText.trim() ? data.html : undefined,
+        mediaUrls: data.mediaUrls,
+        privacy: data.privacy,
+      }),
+    onSuccess: (post) => {
+      toast.success("Đã đăng bài viết");
+      qc.setQueriesData<InfiniteData<PaginatedResponse<Post>>>(
+        { queryKey: ["feed"] },
+        (old) => {
+          if (!old?.pages) return old;
+          return {
+            ...old,
+            pages: [
+              {
+                data: [post, ...(old.pages[0]?.data ?? [])],
+                nextCursor: old.pages[0]?.nextCursor,
+                hasMore: old.pages[0]?.hasMore,
+              },
+              ...old.pages.slice(1),
+            ],
+          };
+        },
+      );
+      qc.invalidateQueries({ queryKey: ["feed"] });
+      onSuccess?.();
+    },
+    onError: (err) => toast.error(getApiError(err, "Đăng bài thất bại")),
   });
 };

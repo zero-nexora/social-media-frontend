@@ -7,8 +7,6 @@ import {
   AlertCircle,
   Sparkles,
 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import {
@@ -21,11 +19,11 @@ import {
 import { UserAvatar } from "../shared/user-avatar";
 import { PostEditor } from "./post-editor";
 import { MediaUploadZone } from "./media-upload-zone";
-import { postsApi } from "../../services/api-services";
 import { useCloudinaryUpload } from "../../hooks/use-cloudinary-upload";
 import { useAuth } from "../../hooks/use-auth";
 import type { Privacy } from "../../types";
 import { useGenerateCaption } from "../../hooks/use-generate-caption";
+import { useCreatePostMutation } from "../../hooks/use-post-mutations";
 
 const PRIVACY_OPTIONS: {
   value: Privacy;
@@ -40,18 +38,15 @@ const PRIVACY_OPTIONS: {
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
   initialMediaOpen?: boolean;
 }
 
 export const CreatePostDialog = ({
   open,
   onClose,
-  onSuccess,
   initialMediaOpen,
 }: Props) => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const upload = useCloudinaryUpload("posts");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editorResetRef = useRef<(() => void) | null>(null);
@@ -95,40 +90,9 @@ export const CreatePostDialog = ({
     [upload],
   );
 
-  const create = useMutation({
-    mutationFn: async () => {
-      let mediaUrls: string[] = [];
-      if (upload.hasFiles) mediaUrls = await upload.uploadAll();
-      return postsApi.create({
-        content: plainText.trim() ? html : undefined,
-        mediaUrls,
-        privacy,
-      });
-    },
-    onSuccess: (post) => {
-      toast.success("Đã đăng bài viết");
-      queryClient.setQueriesData<any>({ queryKey: ["feed"] }, (old: any) => {
-        if (!old?.pages) return old;
-        return {
-          ...old,
-          pages: [
-            {
-              data: [post, ...(old.pages[0]?.data ?? [])],
-              nextCursor: old.pages[0]?.nextCursor,
-              hasMore: old.pages[0]?.hasMore,
-            },
-            ...old.pages.slice(1),
-          ],
-        };
-      });
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
-      onSuccess?.();
-      handleClose();
-    },
-    onError: (err: Error) => toast.error(err.message || "Đăng bài thất bại"),
-  });
+  const createPostMutation = useCreatePostMutation({ onSuccess: handleClose });
 
-  const isWorking = create.isPending || upload.isUploading;
+  const isWorking = createPostMutation.isPending || upload.isUploading;
   const canSubmit =
     (plainText.trim().length > 0 || upload.hasFiles) &&
     !isWorking &&
@@ -139,7 +103,7 @@ export const CreatePostDialog = ({
       const done = upload.items.filter((x) => x.status === "done").length;
       return `Đang tải ${done}/${upload.items.length}...`;
     }
-    if (create.isPending) return "Đang đăng...";
+    if (createPostMutation.isPending) return "Đang đăng...";
     return "Đăng";
   };
 
@@ -157,6 +121,12 @@ export const CreatePostDialog = ({
     const results = await generate(urls);
     if (results?.length) setCaptions(results);
   }, [upload, generate]);
+
+  const handleSubmit = async () => {
+    let mediaUrls: string[] = [];
+    if (upload.hasFiles) mediaUrls = await upload.uploadAll();
+    createPostMutation.mutate({ html, plainText, privacy, mediaUrls });
+  };
 
   const handleSelectCaption = useCallback((caption: string) => {
     editorSetValueRef.current?.(`<p>${caption}</p>`);
@@ -212,7 +182,6 @@ export const CreatePostDialog = ({
               editorResetRef.current = fn;
             }}
             onSetValue={(fn) => {
-              // thêm prop này
               editorSetValueRef.current = fn;
             }}
             autoFocus={open}
@@ -324,7 +293,7 @@ export const CreatePostDialog = ({
               Huỷ
             </Button>
             <Button
-              onClick={() => create.mutate()}
+              onClick={() => handleSubmit()}
               disabled={!canSubmit}
               className="min-w-18"
             >

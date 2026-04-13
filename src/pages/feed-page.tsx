@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Image, Smile, Tag } from "lucide-react";
 import { postsApi } from "../services/api-services";
 import { useInfiniteScroll } from "../hooks/use-infinite-scroll";
@@ -31,7 +31,6 @@ function QuickAction({ icon, label, onClick }: QuickActionProps) {
 
 export default function FeedPage() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [createWithMedia, setCreateWithMedia] = useState(false);
 
@@ -133,7 +132,6 @@ export default function FeedPage() {
       <CreatePostDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        onSuccess={() => queryClient.invalidateQueries({ queryKey: ["feed"] })}
         initialMediaOpen={createWithMedia}
       />
     </div>

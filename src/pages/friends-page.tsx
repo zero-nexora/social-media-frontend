@@ -102,10 +102,9 @@ export default function FriendsPage() {
   const receiverIds = sent
     .map((r) => r.receiver?.id)
     .filter(Boolean) as string[];
-  const suggestionIds = visibleSuggestions.map((s) => s.user.id);
 
   usePresence([
-    ...new Set([...friendIds, ...senderIds, ...receiverIds, ...suggestionIds]),
+    ...new Set([...friendIds, ...senderIds, ...receiverIds]),
   ]);
 
   const filteredFriends = friendSearch

@@ -115,7 +115,7 @@ export const ProfileStoriesTab = ({
     isFetchingNextPage,
     isLoading: loadingOwn,
   } = useInfiniteQuery({
-    queryKey: ["my-stories", userId],
+    queryKey: ["my-stories"],
     queryFn: ({ pageParam }) =>
       storiesApi.getMine(pageParam as string | undefined),
     initialPageParam: undefined as string | undefined,

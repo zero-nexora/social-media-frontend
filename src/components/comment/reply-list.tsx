@@ -43,7 +43,6 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
   } = useQuery({
     queryKey: ["replies", commentId],
     queryFn: () => commentsApi.getReplies(commentId),
-    staleTime: 30_000,
   });
 
   const [editingId, setEditingId] = useState<string | null>(null);

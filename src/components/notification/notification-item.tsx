@@ -40,10 +40,7 @@ export const NotificationItem = ({ notification }: Props) => {
   const deleteMutation = useMutation({
     mutationFn: () => notificationsApi.delete(notification.id),
     onSuccess: () => {
-      if (!notification.isRead) {
-        decrementUnread();
-      }
-
+      if (!notification.isRead) decrementUnread();
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["notifications-preview"] });
     },
@@ -60,7 +57,7 @@ export const NotificationItem = ({ notification }: Props) => {
   return (
     <div
       className={cn(
-        "relative flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors group",
+        "flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors group",
         "hover:bg-muted/60",
         !notification.isRead && "bg-primary/5",
       )}
@@ -87,19 +84,24 @@ export const NotificationItem = ({ notification }: Props) => {
         </p>
       </div>
 
-      {!notification.isRead && (
-        <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2" />
-      )}
+      <div className="flex flex-col items-center gap-1.5 shrink-0 mt-1">
+        {!notification.isRead && (
+          <span className="w-2 h-2 rounded-full bg-primary" />
+        )}
 
-      <button
-        className="absolute top-3 right-3 p-1 rounded-full hover:bg-muted opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground"
-        onClick={(e) => {
-          e.stopPropagation();
-          setDeleteOpen(true);
-        }}
-      >
-        <Trash2 size={13} />
-      </button>
+        <button
+          className={cn(
+            "p-1.5 rounded-full hover:bg-muted transition-all text-muted-foreground hover:text-destructive",
+            "opacity-0 group-hover:opacity-100",
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            setDeleteOpen(true);
+          }}
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
@@ -113,10 +115,12 @@ export const NotificationItem = ({ notification }: Props) => {
             <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
               Huỷ
             </AlertDialogCancel>
-            <AlertDialogAction onClick={(e) => {
-              e.stopPropagation();
-              deleteMutation.mutate()
-            }}>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteMutation.mutate();
+              }}
+            >
               Xác nhận
             </AlertDialogAction>
           </AlertDialogFooter>

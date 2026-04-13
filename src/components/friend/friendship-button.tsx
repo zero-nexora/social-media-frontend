@@ -107,7 +107,7 @@ export const FriendshipButton = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setCancelOpen(true)}>
-              Huỷ lời mời
+              <UserMinus size={13} className="mr-2" /> Huỷ lời mời
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -121,12 +121,14 @@ export const FriendshipButton = ({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Huỷ</AlertDialogCancel>
+              <AlertDialogCancel>
+                <UserMinus size={13} className="mr-2" /> Huỷ
+              </AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive hover:bg-destructive/90"
                 onClick={() => cancelRequestMutation.mutate()}
               >
-                Xác nhận
+                <UserCheck size={13} className="mr-2" /> Xác nhận
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -151,7 +153,7 @@ export const FriendshipButton = ({
           onClick={() => setRejectOpen(true)}
           disabled={rejectRequestMutation.isPending}
         >
-          Xoá
+          <UserMinus size={14} className="mr-1.5" /> Từ chối
         </Button>
 
         <AlertDialog open={rejectOpen} onOpenChange={setRejectOpen}>

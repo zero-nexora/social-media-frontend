@@ -3,55 +3,25 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import type { InfiniteData } from "@tanstack/react-query";
-import type { Comment, Post, PaginatedResponse, ReactionType } from "../types";
+import type {
+  Comment,
+  Post,
+  PaginatedResponse,
+  PostReactionPayload,
+  PostUpdatedPayload,
+  PostDeletedPayload,
+  NewCommentPayload,
+  NewReplyPayload,
+  CommentUpdatedPayload,
+  CommentDeletedPayload,
+  CommentsCountPayload,
+} from "../types";
 import { useSocketStore } from "../stores/socket-store";
 import { useAuthStore } from "../stores/auth-store";
 import { postsApi } from "../services/api-services";
 import { PostCardSkeleton } from "../components/shared/skeleton-card";
 import { PostCard } from "../components/post/post-card";
 import { CommentSection } from "../components/comment/comment-section";
-
-interface PostReactionPayload {
-  postId: string;
-  userId: string;
-  action: "created" | "deleted" | "updated";
-  reactionType: ReactionType | null;
-  likesCount: number;
-}
-interface PostUpdatedPayload {
-  postId: string;
-  content: string | null;
-  privacy: string;
-  updatedAt: string;
-}
-interface PostDeletedPayload {
-  postId: string;
-}
-interface NewCommentPayload {
-  postId: string;
-  comment: Comment;
-}
-interface NewReplyPayload {
-  postId: string;
-  commentId: string;
-  reply: Comment;
-}
-interface CommentUpdatedPayload {
-  postId: string;
-  commentId: string;
-  content: string;
-  parentId: string | null;
-}
-interface CommentDeletedPayload {
-  postId: string;
-  commentId: string;
-  parentId: string | null;
-  decrementBy: number;
-}
-interface CommentsCountPayload {
-  postId: string;
-  commentsCount: number;
-}
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -166,6 +136,7 @@ export default function PostDetailPage() {
           };
         },
       );
+
       queryClient.setQueriesData<InfiniteData<PaginatedResponse<Comment>>>(
         { queryKey: ["user-posts", me?.id] },
         (old) => {
@@ -180,6 +151,7 @@ export default function PostDetailPage() {
           };
         },
       );
+
       patchPost({ commentsCount: (post?.commentsCount ?? 0) + 1 });
     };
 

@@ -417,14 +417,11 @@ export const bootstrapApi = {
 
   getFriendRequestCount: (token: string) =>
     api
-      .get<{ data: unknown[]; hasMore: boolean }>(
-        `/friendships/requests?limit=1`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        },
-      )
-      .then((r) => (r.data.hasMore ? 99 : r.data.data.length)),
+      .get<{ count: number }>(`/friendships/requests/count`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      })
+      .then((r) => r.data.count),
 };
 
 // ─── AI ───────────────────────────────────────────────────

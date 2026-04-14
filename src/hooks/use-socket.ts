@@ -15,6 +15,7 @@ import type {
   SocketStoryNewPayload,
   SocketStoryDeletedPayload,
   SocketFriendRequestRejectedPayload,
+  SocketFollowPayload,
 } from "../types";
 
 export const useSocket = () => {
@@ -147,6 +148,36 @@ export const useSocket = () => {
       });
     };
 
+    const onUserFollowed = (payload: SocketFollowPayload) => {
+      queryClient.invalidateQueries({
+        queryKey: ["followers", payload.followingId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["following", payload.followerId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.followingId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.followerId],
+      });
+    };
+
+    const onUserUnfollowed = (payload: SocketFollowPayload) => {
+      queryClient.invalidateQueries({
+        queryKey: ["followers", payload.followingId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["following", payload.followerId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.followingId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", payload.followerId],
+      });
+    };
+
     const onStoryNew = (payload: SocketStoryNewPayload) => {
       queryClient.invalidateQueries({ queryKey: ["stories-feed"] });
       toast(`${payload.user.username} vừa đăng một story mới`);
@@ -174,6 +205,8 @@ export const useSocket = () => {
     socket.on("friend_request_rejected", onFriendRequestRejected);
     socket.on("friend_unfriended", onFriendUnfriended);
     socket.on("friend_accepted", onFriendAccepted);
+    socket.on("user:followed", onUserFollowed);
+    socket.on("user:unfollowed", onUserUnfollowed);
     socket.on("user:online", onUserOnline);
     socket.on("user:offline", onUserOffline);
 
@@ -185,6 +218,8 @@ export const useSocket = () => {
       socket.off("friend_request_cancelled", onFriendRequestCancelled);
       socket.off("friend_request_rejected", onFriendRequestRejected);
       socket.off("friend_accepted", onFriendAccepted);
+      socket.off("user:followed", onUserFollowed);
+      socket.off("user:unfollowed", onUserUnfollowed);
       socket.off("friend_unfriended", onFriendUnfriended);
       socket.off("user:online", onUserOnline);
       socket.off("user:offline", onUserOffline);

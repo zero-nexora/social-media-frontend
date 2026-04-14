@@ -282,3 +282,8 @@ export interface CommentsCountPayload {
   postId: string;
   commentsCount: number;
 }
+
+export interface SocketFollowPayload {
+  followerId: string;
+  followingId: string;
+}

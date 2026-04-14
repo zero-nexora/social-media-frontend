@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { followersApi } from "../services/api-services";
 import { toast } from "sonner";
 import { getApiError } from "../lib/get-api-error";
+import { useAuth } from "./use-auth";
 
 export const useFollowMutation = ({
   profileId,
@@ -13,6 +14,7 @@ export const useFollowMutation = ({
   onSuccess?: () => void;
 }) => {
   const qc = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: () =>
@@ -21,11 +23,7 @@ export const useFollowMutation = ({
         : followersApi.follow(profileId),
     onSuccess: () => {
       toast.info(isFollowing ? "Đã bỏ theo dõi" : "Đã theo dõi");
-      if (isFollowing) {
-        qc.invalidateQueries({ queryKey: ["following", profileId] });
-      } else {
-        qc.invalidateQueries({ queryKey: ["followers", profileId] });
-      }
+      qc.invalidateQueries({ queryKey: ["feed", user?.id] });
       onSuccess?.();
     },
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
